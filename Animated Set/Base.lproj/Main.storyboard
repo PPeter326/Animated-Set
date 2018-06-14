@@ -1,24 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" systemVersion="17A277" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Set" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="6AI-cu-fh1">
+                                <rect key="frame" x="16" y="36" width="382" height="684"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="wcz-mW-EXj">
+                                        <rect key="frame" x="0.0" y="0.0" width="382" height="19"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score: " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ytd-vy-xxc">
+                                                <rect key="frame" x="0.0" y="0.0" width="191" height="19"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" secondItem="ytd-vy-xxc" secondAttribute="height" multiplier="100:10" id="Tax-pF-ZEi"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dep-vr-LtP">
+                                                <rect key="frame" x="191" y="0.0" width="191" height="19"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                                <size key="titleShadowOffset" width="3" height="3"/>
+                                                <state key="normal" title="NEW GAME">
+                                                    <color key="titleColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="newGameButtonTouched:" destination="BYZ-38-t0r" eventType="touchUpInside" id="72b-hk-IFA"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e7L-Nl-86x" userLabel="PlayingCardsView" customClass="PlayingCardsMainView" customModule="Set" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="27" width="382" height="619"/>
+                                        <color key="backgroundColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </view>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tTR-ZA-oLL">
+                                        <rect key="frame" x="115.66666666666666" y="654" width="150.99999999999997" height="30"/>
+                                        <color key="backgroundColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="70" id="iFT-3g-Toq"/>
+                                            <constraint firstAttribute="height" constant="30" id="tvy-Jz-Ryn"/>
+                                        </constraints>
+                                        <state key="normal" title="DEAL 3 MORE CARDS">
+                                            <color key="titleColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="dealCardButtonTouched:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ZJS-P3-LBe"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="e7L-Nl-86x" secondAttribute="trailing" id="DWO-Kq-gaZ"/>
+                                    <constraint firstItem="e7L-Nl-86x" firstAttribute="leading" secondItem="6AI-cu-fh1" secondAttribute="leading" id="ERV-Al-vGh"/>
+                                    <constraint firstItem="wcz-mW-EXj" firstAttribute="top" secondItem="6AI-cu-fh1" secondAttribute="top" id="bRj-Sb-MZ1"/>
+                                    <constraint firstAttribute="trailing" secondItem="wcz-mW-EXj" secondAttribute="trailing" id="k2Z-xb-Rh5"/>
+                                    <constraint firstItem="e7L-Nl-86x" firstAttribute="top" secondItem="wcz-mW-EXj" secondAttribute="bottom" constant="8" id="wuT-Nf-5eb"/>
+                                    <constraint firstItem="tTR-ZA-oLL" firstAttribute="top" secondItem="e7L-Nl-86x" secondAttribute="bottom" constant="8" id="yTr-dl-SwQ"/>
+                                    <constraint firstItem="wcz-mW-EXj" firstAttribute="leading" secondItem="6AI-cu-fh1" secondAttribute="leading" id="zSl-9V-eoK"/>
+                                </constraints>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" red="3.2187440979999998e-07" green="0.63529413940000001" blue="0.99999994039999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="6AI-cu-fh1" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="5eQ-ig-ADx"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="6AI-cu-fh1" secondAttribute="bottom" constant="16" id="LbB-Dd-aUe"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="6AI-cu-fh1" secondAttribute="trailing" constant="16" id="gcM-Vm-IYF"/>
+                            <constraint firstItem="6AI-cu-fh1" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="rCb-rR-xcF"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="dealCardButton" destination="tTR-ZA-oLL" id="qvr-sS-05k"/>
+                        <outlet property="playingCardsMainView" destination="e7L-Nl-86x" id="94f-lN-T4G"/>
+                        <outlet property="scoreLabel" destination="ytd-vy-xxc" id="3ej-nb-d6x"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="117.59999999999999" y="117.39130434782609"/>
         </scene>
     </scenes>
 </document>
