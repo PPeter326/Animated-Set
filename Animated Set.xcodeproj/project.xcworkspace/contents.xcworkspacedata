@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Users/peterwu/Desktop/Projects/Animated Set/Animated Set/ViewController.swift">
-   </FileRef>
-   <FileRef
       location = "self:Animated Set.xcodeproj">
    </FileRef>
 </Workspace>
