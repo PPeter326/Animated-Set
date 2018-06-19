@@ -112,7 +112,21 @@ class ViewController: UIViewController {
             let selectedCard = set.playedCards[cardViewIndex]
             set.selectCard(card: selectedCard) { result in
                 switch result {
-                case .selected: selectedCardViews.append(cardView)
+                case .selected:
+                    selectedCardViews.append(cardView)
+                    // animate card views if it's matched
+                    if let matched = set.matched, matched {
+                        UIViewPropertyAnimator.runningPropertyAnimator(
+                            withDuration: 1.0,
+                            delay: 0,
+                            options: [UIViewAnimationOptions.transitionCrossDissolve],
+                            animations: {
+                                self.selectedCardViews.forEach { cardView in
+                                    cardView.alpha = 0
+                                }
+                            }
+                        )
+                    }
                 case .deselected:
                     guard let index = selectedCardViews.index(of: cardView) else { return }
                     selectedCardViews.remove(at: index)

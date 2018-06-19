@@ -72,7 +72,6 @@ class PlayingCardsMainView: UIView {
         self.cardViews.forEach{ $0.removeFromSuperview() }
         self.cardViews.removeAll()
         numberOfCardViews = 0
-        setNeedsDisplay()
     }
     
 
