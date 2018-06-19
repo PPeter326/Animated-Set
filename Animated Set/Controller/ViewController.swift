@@ -58,21 +58,6 @@ class ViewController: UIViewController {
                 cardView.layer.borderWidth = cardView.frame.width / 15
                 cardView.layer.borderColor = #colorLiteral(red: 0, green: 0.9914394021, blue: 1, alpha: 1).cgColor
             }
-            if let matched = set.matched {
-                if matched {
-                    selectedCardViews = selectedCardViews.map { (cardView) -> CardView in
-                        cardView.layer.borderWidth = cardView.frame.width / 15
-                        cardView.layer.borderColor =  UIColor.green.cgColor
-                        return cardView
-                    }
-                } else {
-                    selectedCardViews = selectedCardViews.map { (cardView) -> CardView in
-                        cardView.layer.borderWidth = cardView.frame.width / 15
-                        cardView.layer.borderColor =  UIColor.red.cgColor
-                        return cardView
-                    }
-                }
-            }
         }
     }
     
@@ -114,32 +99,19 @@ class ViewController: UIViewController {
                 switch result {
                 case .selected:
                     selectedCardViews.append(cardView)
-                    // animate card views if it's matched
-                    if let matched = set.matched, matched {
-                        UIViewPropertyAnimator.runningPropertyAnimator(
-                            withDuration: 1.0,
-                            delay: 0,
-                            options: [UIViewAnimationOptions.transitionCrossDissolve],
-                            animations: {
-                                self.selectedCardViews.forEach { cardView in
-                                    cardView.alpha = 0
-                                }
-                            }
-                        )
-                    }
                 case .deselected:
                     guard let index = selectedCardViews.index(of: cardView) else { return }
                     selectedCardViews.remove(at: index)
                 case .matched:
+                    selectedCardViews.append(cardView)
+                    selectedCardViews.forEach({ (cardView) in
+                        cardView.layer.borderWidth = cardView.frame.width / 15
+                        cardView.layer.borderColor =  UIColor.green.cgColor
+                    })
                     if set.deck.isEmpty {
                         // If deck is empty, then the views are shifted.  There are now less card views than before (for ex 21 -> 18)
                         // 1. first make the matched (also selected) card views disappear but keep the rest of the cards intact
-                        
-                        UIViewPropertyAnimator.runningPropertyAnimator(
-                            withDuration: 1.0,
-                            delay: 0,
-                            options: [UIViewAnimationOptions.curveEaseIn],
-                            animations: {
+                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [UIViewAnimationOptions.curveEaseIn], animations: {
                                 self.selectedCardViews.forEach{ $0.alpha = 0}
                             }, completion: { position in
                                 // remove the selected cardviews
@@ -155,11 +127,27 @@ class ViewController: UIViewController {
                             }
                         )
                     } else { // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
-                        makeCardViews()
-                        selectedCardViews.removeAll()
+                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
+                            self.selectedCardViews.forEach{ $0.alpha = 0 }
+                        }, completion: { (position) in
+                            self.makeCardViews()
+                            self.selectedCardViews.removeAll()
+                        })
                     }
                 case .noMatch:
-                    selectedCardViews.removeAll()
+                    selectedCardViews.append(cardView)
+                    selectedCardViews.forEach({ (cardView) in
+                        cardView.layer.borderWidth = cardView.frame.width / 15
+                        cardView.layer.borderColor =  UIColor.red.cgColor
+                    })
+                    
+                    UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
+                        self.selectedCardViews.forEach({ (selectedCardView) in
+                            selectedCardView.transform = CGAffineTransform.identity.scaledBy(x: 1.2, y: 1.2)
+                        })
+                    }, completion: { (position) in
+                        self.selectedCardViews.removeAll()
+                    })
                 default: break
                 }
                 // update score
@@ -225,6 +213,7 @@ class ViewController: UIViewController {
         ]
         return NSAttributedString(string: string, attributes: stringAttributes)
     }
+    
     private func dealCards() {
         // 1. tells game to deal three cards, then display the new cards
         // make new cards views only if:
@@ -284,7 +273,7 @@ class ViewController: UIViewController {
         cardView.numberOfShapes = numberOfShapes
         cardView.alpha = 0
         UIViewPropertyAnimator.runningPropertyAnimator(
-            withDuration: 0.6,
+            withDuration: 1.0,
             delay: 0,
             options: [.curveEaseIn],
             animations: {
