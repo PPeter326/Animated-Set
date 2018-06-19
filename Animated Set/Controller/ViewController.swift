@@ -152,28 +152,14 @@ class ViewController: UIViewController {
                                 self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
                                 // disable dealcard button
                                 self.dealCard(disable: true)
-                                // get the index of the card from played card
-                                let index = self.set.playedCards.index(of: selectedCard)!
-                                // get the selectedCardview from the new index
-                                let updatedSelectedCardView = self.playingCardsMainView.cardViews[index]
-                                // update the selectedCardViews Array
-                                self.selectedCardViews.append(updatedSelectedCardView)
                             }
                         )
-                        // then the rest of cards shift to new location
-                        // then the cards enlarge to new frame
-                        // update cardviews for the new set of played cards
-//                        for (index, card) in set.playedCards.enumerated() {
-//                            makeCardView(cardView: playingCardsMainView.cardViews[index], card: card)
-//                        }
                     } else { // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
                         makeCardViews()
                         selectedCardViews.removeAll()
-                        selectedCardViews.append(cardView)
                     }
                 case .noMatch:
                     selectedCardViews.removeAll()
-                    selectedCardViews.append(cardView)
                 default: break
                 }
                 // update score

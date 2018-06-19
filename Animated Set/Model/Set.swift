@@ -73,55 +73,48 @@ class Set {
     func selectCard(card: Card, result: (_ result: Result) -> Void) {
         var selectionResult = Result.selected
         
-         if !matchedCards.contains(card) {
+        if !matchedCards.contains(card) {
             switch self.selectedCards.count {
             case 0...2: // add/remove from selected cards, depending on if user already selected the card
                 if selectedCards.contains(card) {
                     // get index of the card in selected cards
                     let index = selectedCards.index(of: card)!
                     selectedCards.remove(at: index)
-//                    let selected = Selected.deselected
-                    selectionResult = .deselected
+                    // deduct one point for deselecting the card
                     score -= 1
+                    selectionResult = .deselected
                 } else {
                     selectedCards.append(card)
-                    selectionResult = .selected
-                }
-                result(selectionResult)
-            case 3:
-                // User should not be able to select any of the matched cards.  For any other cards, simply clear the selectedcards array and append new one
-                // the 3 cards already selected could be A. matched or B. not-matched
-                // the new card user selected could be 1. already selected or 2. not already selected
-                // 1. - A.  nothing happens.  User can't select a card that's already matching.
-                // 1. - B. clear selected cards, and add user's selected card to the list.
-                // 2. - A. The played cards replace selected cards with new cards from deck.  The selected cards are cleared.  User's new select card is added to the selcted cards list.
-                // 2. - B. clear selected cards, and add user's selected card to the list
-                // replace played cards with cards from deck if there was a match and deck is not empty
-                if matched! { // If there are already 3 cards selected, there must have been a match
-                    if deck.isEmpty {
-                        for selectedCard in selectedCards {
-                            playedCards.remove(at: playedCards.index(of: selectedCard)!)
+                    // If there was a match (selected 3 cards)
+                    if let matched = matched {
+                        if matched { // 3 cards matched to a set
+                            if deck.isEmpty { // no more cards in deck, simply remove cards from play
+                                for selectedCard in selectedCards {
+                                    playedCards.remove(at: playedCards.index(of: selectedCard)!)
+                                }
+                            } else { // Deck isn't empty - deal cards from deck to replace matched cards
+                                dealtCards.removeAll()
+                                for selectedCard in selectedCards {
+                                    let card =  deck.removeLast()
+                                    playedCards[playedCards.index(of: selectedCard)!] = card
+                                    dealtCards.append(card)
+                                }
+                            }
+                            selectionResult = .matched
+                        } else {
+                            selectionResult = .noMatch
                         }
+                        self.matched = nil // reset matched status after removing matched cards from play
+                        selectedCards.removeAll()
                     } else {
-                        dealtCards.removeAll()
-                        for selectedCard in selectedCards {
-                            let card =  deck.removeLast()
-                            playedCards[playedCards.index(of: selectedCard)!] = card
-                            dealtCards.append(card)
-                        }
+                        selectionResult = .selected
                     }
-                    selectionResult = .matched
-                } else {
-                    selectionResult = .noMatch
                 }
-                self.matched = nil // reset matched status after removing matched cards from play
-                selectedCards.removeAll()
-                selectedCards.append(card)
                 result(selectionResult)
             default: // There should be no more than 3 cards selected at a time
                 break
             }
-         } else { // user touches one of the matched cards - no action
+        } else { // user touches one of the matched cards - no action
             selectionResult = .noAction
             result(selectionResult)
         }
