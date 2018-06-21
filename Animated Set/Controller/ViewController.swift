@@ -45,21 +45,7 @@ class ViewController: UIViewController {
         }
     }
     
-    var selectedCardViews = [CardView]() {
-        didSet {
-            assert(selectedCardViews.count < 4, "invalid number of selected card views")
-            // reset cardviews style on prior selected cards
-            for cardView in oldValue {
-                cardView.layer.borderWidth = cardView.frame.width / 100
-                cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
-            }
-            // show border on new selected cards
-            for cardView in selectedCardViews {
-                cardView.layer.borderWidth = cardView.frame.width / 15
-                cardView.layer.borderColor = #colorLiteral(red: 0, green: 0.9914394021, blue: 1, alpha: 1).cgColor
-            }
-        }
-    }
+    var selectedCardViews = [CardView]()
     
     // MARK: - Game Properties -
     private var set = Set()
@@ -99,21 +85,26 @@ class ViewController: UIViewController {
                 switch result {
                 case .selected:
                     selectedCardViews.append(cardView)
+                    cardView.layer.borderWidth = cardView.frame.width / 15
+                    cardView.layer.borderColor = #colorLiteral(red: 0, green: 0.9914394021, blue: 1, alpha: 1).cgColor
                 case .deselected:
+                    cardView.layer.borderWidth = cardView.frame.width / 100
+                    cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
                     guard let index = selectedCardViews.index(of: cardView) else { return }
                     selectedCardViews.remove(at: index)
                 case .matched:
                     selectedCardViews.append(cardView)
-                    selectedCardViews.forEach({ (cardView) in
-                        cardView.layer.borderWidth = cardView.frame.width / 15
-                        cardView.layer.borderColor =  UIColor.green.cgColor
-                    })
+                    selectedCardViews.forEach {
+                        $0.layer.borderWidth = $0.frame.width / 15
+                        $0.layer.borderColor =  UIColor.green.cgColor
+                    }
                     if set.deck.isEmpty {
                         // If deck is empty, then the views are shifted.  There are now less card views than before (for ex 21 -> 18)
                         // 1. first make the matched (also selected) card views disappear but keep the rest of the cards intact
                         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [UIViewAnimationOptions.curveEaseIn], animations: {
                                 self.selectedCardViews.forEach{ $0.alpha = 0}
                             }, completion: { position in
+                                
                                 // remove the selected cardviews
                                 for cardView in self.selectedCardViews {
                                     cardView.removeFromSuperview()
@@ -130,6 +121,12 @@ class ViewController: UIViewController {
                         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
                             self.selectedCardViews.forEach{ $0.alpha = 0 }
                         }, completion: { (position) in
+                            // restore selectedCardViews state
+                            self.selectedCardViews.forEach {
+                                $0.alpha = 1
+                                $0.layer.borderWidth = $0.frame.width / 100
+                                $0.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+                            }
                             self.makeCardViews()
                             self.selectedCardViews.removeAll()
                         })
@@ -143,9 +140,16 @@ class ViewController: UIViewController {
                     
                     UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
                         self.selectedCardViews.forEach({ (selectedCardView) in
-                            selectedCardView.transform = CGAffineTransform.identity.scaledBy(x: 1.2, y: 1.2)
+                            selectedCardView.transform = CGAffineTransform.identity.scaledBy(x: 0.8, y: 0.8)
                         })
                     }, completion: { (position) in
+                        // No need to transform cardView back because it's being done in updateFrames() in PlayingCardsMainView
+                        // restore selected cards back to its original property then remove from selectedCardViews array
+                        self.selectedCardViews.forEach {
+                            $0.layer.borderWidth = $0.frame.width / 100
+                            $0.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+//                            $0.transform = .identity
+                        }
                         self.selectedCardViews.removeAll()
                     })
                 default: break

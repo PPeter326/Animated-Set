@@ -107,6 +107,7 @@ class Set {
                         self.matched = nil // reset matched status after removing matched cards from play
                         selectedCards.removeAll()
                     } else {
+                        assert(selectedCards.count != 3, "Invalid selected cards count")
                         selectionResult = .selected
                     }
                 }
