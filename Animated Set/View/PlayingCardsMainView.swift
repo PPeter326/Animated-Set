@@ -15,58 +15,86 @@ class PlayingCardsMainView: UIView {
     }
     
     lazy var grid = Grid(layout: Grid.Layout.aspectRatio(AspectRatio.cardViewRectangle), frame: self.bounds)
-    
+//    private weak var timer: Timer?
+    lazy var deckFrame = CGRect(x: self.frame.minX, y: self.frame.maxY, width: self.frame.width/20, height: self.frame.width/20)
     var numberOfCardViews: Int = 0 {
         didSet {
-            func makeCells(startingIndex: Int) {
-                for index in startingIndex...(numberOfCardViews - 1) {
-                    let rect = grid[index]!
-                    let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-                    let cardView = CardView(frame: newRect)
-                    cardView.backgroundColor = #colorLiteral(red: 0, green: 0.5628422499, blue: 0.3188166618, alpha: 0.7835308305)
-                    cardView.layer.borderWidth = rect.width / 100
-                    cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
-                    self.addSubview(cardView)
-                    cardViews.append(cardView)
-                }
-            }
             // recalculate grid every time number of cards are set
             grid.cellCount = numberOfCardViews
-            let cellCountChanges = numberOfCardViews - oldValue
-            if cellCountChanges > 0 { // more cardViews than before
-                // make additional cardViews starting at the first index after ending index of old value
-                let oldValueEndIndex = oldValue - 1 // if old value had 12 cards, end index = 12 - 1 = 11
-                let startingIndex = oldValueEndIndex + 1
-                makeCells(startingIndex: startingIndex)
-            }
-            updateCardsFrame()
-            setNeedsDisplay()
+//            layoutIfNeeded()
         }
     }
     
     var cardViews: [CardView] = []
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        
+        print(#function)
+//        grid.frame = self.bounds
+//        layoutIfNeeded()
+//        updateCardsFrame()
         setNeedsLayout()
     }
-    
     override func layoutSubviews() {
         super.layoutSubviews()
         grid.frame = self.bounds
+
+        print(#function)
         updateCardsFrame()
+//        for (index, cardView) in self.cardViews.enumerated() {
+//            guard let rect = self.grid[index] else { return }
+//            let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+//            cardView.frame = newRect
+//        }
     }
     
     /// Update each cardView's frame with the new CGRect from grid object
     func updateCardsFrame() {
-        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0, options: [.allowAnimatedContent], animations: {
+        print(#function)
+//        animate(startingIndex: 0)
+//        for index in cardViews.indices {
+//            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { (timer) in
+//                self.animate(index: index)
+//            })
+//        }
+//        while index < (cardViews.count - 1) {
+//            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { (timer) in
+//                self.animate(index: index)
+//                index += 1
+//            })
+//            timer?.invalidate()
+//        }
+
+        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [.allowAnimatedContent], animations: {
             for (index, cardView) in self.cardViews.enumerated() {
-                if let rect = self.grid[index] {
-                    let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-                    cardView.frame = newRect
-                }
+                guard let rect = self.grid[index] else { return }
+                let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+                cardView.frame = newRect
             }
-        }, completion: nil)
+        })
     }
+//    func animate(startingIndex: Int) {
+//            UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 1.0, options: [.layoutSubviews], animations: {
+//                guard let rect = self.grid[startingIndex] else { return }
+//                let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+//                let cardView = self.cardViews[startingIndex]
+//                cardView.frame = newRect
+//            }, completion: { finished in
+//                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 1.0, options: [.layoutSubviews], animations: {
+//                    guard let rect = self.grid[(startingIndex + 1)] else { return }
+//                    let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+//                    let cardView = self.cardViews[(startingIndex + 1)]
+//                    cardView.frame = newRect
+//                }, completion: { finished in
+//                    UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 1.0, options: [.layoutSubviews], animations: {
+//                        guard let rect = self.grid[(startingIndex + 2)] else { return }
+//                        let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+//                        let cardView = self.cardViews[(startingIndex + 2)]
+//                        cardView.frame = newRect
+//                    }, completion: nil)
+//                })
+//            })
+//    }
     
     func reset() {
         self.cardViews.forEach{ $0.removeFromSuperview() }

@@ -18,6 +18,7 @@
 		F906CFD820D2EC6000C0E0AB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F906CFD120D2EC6000C0E0AB /* Main.storyboard */; };
 		F906CFD920D2EC6000C0E0AB /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFD320D2EC6000C0E0AB /* Grid.swift */; };
 		F940789F20D306280005E5E2 /* CardIndexError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F940789E20D306280005E5E2 /* CardIndexError.swift */; };
+		F940FDCA20DC7D3600A7C4E0 /* CardViewGeneratorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		F906CFD220D2EC6000C0E0AB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		F906CFD320D2EC6000C0E0AB /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 		F940789E20D306280005E5E2 /* CardIndexError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardIndexError.swift; sourceTree = "<group>"; };
+		F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewGeneratorError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +52,7 @@
 		F906CFA220D2E92D00C0E0AB = {
 			isa = PBXGroup;
 			children = (
+				F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */,
 				F906CFAD20D2E92D00C0E0AB /* Animated Set */,
 				F906CFAC20D2E92D00C0E0AB /* Products */,
 			);
@@ -179,6 +182,7 @@
 			files = (
 				F906CFD520D2EC6000C0E0AB /* Set.swift in Sources */,
 				F906CFCA20D2EC4000C0E0AB /* ViewController.swift in Sources */,
+				F940FDCA20DC7D3600A7C4E0 /* CardViewGeneratorError.swift in Sources */,
 				F906CFD420D2EC6000C0E0AB /* Card.swift in Sources */,
 				F940789F20D306280005E5E2 /* CardIndexError.swift in Sources */,
 				F906CFD620D2EC6000C0E0AB /* PlayingCardsMainView.swift in Sources */,

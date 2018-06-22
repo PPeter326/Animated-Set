@@ -11,7 +11,8 @@ import UIKit
 class ViewController: UIViewController {
     
     // MARK: - UI Elements -
-    
+    // MARK: - Game Properties -
+    private var set = Set()
     
     @IBOutlet weak var playingCardsMainView: PlayingCardsMainView! {
         didSet {
@@ -25,7 +26,7 @@ class ViewController: UIViewController {
             playingCardsMainView.addGestureRecognizer(rotate)
         }
     }
-    
+    private weak var timer: Timer?
     @IBOutlet weak var scoreLabel: UILabel! {
         didSet {
             scoreLabel.attributedText = updateAttributedString("SCORE: 0")
@@ -47,8 +48,7 @@ class ViewController: UIViewController {
     
     var selectedCardViews = [CardView]()
     
-    // MARK: - Game Properties -
-    private var set = Set()
+    var dealtCardViews = [CardView]()
     
     // MARK: Card Attributes
     private let colorDictionary: [Card.Color: UIColor] = [
@@ -232,7 +232,13 @@ class ViewController: UIViewController {
                         for selectedCardView in selectedCardViews {
                             let index = playingCardsMainView.cardViews.index(of: selectedCardView)!
                             let card = set.playedCards[index]
-                            makeCardView(cardView: selectedCardView, card: card)
+                            do {
+                                let cardView = try makeCardView(index: index, card: card)
+                                playingCardsMainView.addSubview(cardView)
+                                playingCardsMainView.cardViews.append(cardView)
+                            } catch {
+                                print(error.localizedDescription)
+                            }
                         }
                     }
                 }
@@ -251,43 +257,95 @@ class ViewController: UIViewController {
     
     
     private func makeCardViews() {
-        self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
-        // Only update view for new additions
-        var dealtCardsIndex = [Int]()
-        for card in self.set.dealtCards {
-            let index = self.set.playedCards.index(of: card)!
-            dealtCardsIndex.append(index)
-        }
-        for index in dealtCardsIndex {
-            let cardView = self.playingCardsMainView.cardViews[index]
-            let card = self.set.playedCards[index]
-            self.makeCardView(cardView: cardView, card: card)
+        print(#function)
+        // reset dealtCardViews
+        dealtCardViews.removeAll()
+        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.5, delay: 0, options: [], animations: {
+            // prepare playingCardsMainView for new cardView frames
+            self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
+            self.playingCardsMainView.grid.frame = self.playingCardsMainView.bounds
+            for (index, cardView) in self.playingCardsMainView.cardViews.enumerated() {
+                guard let rect = self.playingCardsMainView.grid[index] else { return }
+                let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+                cardView.frame = newRect
+            }
+        }) { (position) in
+            // Only update view for new additions
+            for dealtCard in self.set.dealtCards {
+                // get index of dealt card amongst played cards
+                guard let cardIndex = self.set.playedCards.index(of: dealtCard) else { return }
+                // make cardView from index
+                do {
+                    let cardView = try self.makeCardView(index: cardIndex, card: dealtCard)
+                    // move cardview to deck
+                    cardView.alpha = 1
+                    cardView.frame = self.playingCardsMainView.deckFrame
+                    // keep track of the dealt cardViews
+                    self.dealtCardViews.append(cardView)
+                } catch {
+                    print(error)
+                }
+            }
+            self.animate(startingDealtCardIndex: 0)
         }
     }
     
-    private func makeCardView(cardView: CardView, card: Card) {
-        guard let color = colorDictionary[card.color] else { return }
-        guard let shape = shapeDictionary[card.shape] else { return }
+    
+    private func animate(startingDealtCardIndex: Int) {
+        print(#function)
+        let dealtCard = self.set.dealtCards[startingDealtCardIndex]
+        let dealtCardView = self.dealtCardViews[startingDealtCardIndex]
+        
+        // retrieve frame from grid of the specific dealt card
+        guard let dealtCardIndex = self.set.playedCards.index(of: dealtCard) else { return }
+        guard let frame = self.playingCardsMainView.grid[dealtCardIndex] else { return }
+        // 1. get index of dealt card from played cards -> self.set.playedCards.index(of: dealtCard)
+        let newFrame = frame.insetBy(dx: frame.width / 10, dy: frame.height / 10)
+        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.5, delay: 0, options: [], animations: {
+            
+            dealtCardView.frame = newFrame
+            
+            // adding dealt card views to the playingcards main view
+            self.playingCardsMainView.addSubview(dealtCardView)
+            self.playingCardsMainView.cardViews.append(dealtCardView)
+            
+        }) { (position) in
+//            self.playingCardsMainView.layoutIfNeeded()
+            if startingDealtCardIndex < (self.dealtCardViews.count - 1) {
+                self.animate(startingDealtCardIndex: startingDealtCardIndex + 1)
+            }
+        }
+    }
+        
+    
+    private func makeCardView(index: Int, card: Card) throws -> CardView {
+        guard let rect = playingCardsMainView.grid[index] else { throw CardViewGeneratorError.invalidFrame }
+        let cardView = makeCell(rect: rect)
+        guard let color = colorDictionary[card.color] else { throw CardViewGeneratorError.invalidColor }
+        guard let shape = shapeDictionary[card.shape] else { throw CardViewGeneratorError.invalidShape }
         let numberOfShapes = card.numberOfShapes.rawValue
-        guard let shading = shadingDictionary[card.shading] else { return }
+        guard let shading = shadingDictionary[card.shading] else { throw CardViewGeneratorError.invalidShading }
         
         cardView.color = color
         cardView.shade = shading
         cardView.shape = shape
         cardView.numberOfShapes = numberOfShapes
         cardView.alpha = 0
-        UIViewPropertyAnimator.runningPropertyAnimator(
-            withDuration: 1.0,
-            delay: 0,
-            options: [.curveEaseIn],
-            animations: {
-                cardView.alpha = 1.0
-            }
-        )
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(selectCard(_:)))
         tap.numberOfTapsRequired = 1
         cardView.addGestureRecognizer(tap)
+        
+        return cardView
+    }
+    
+    private func makeCell(rect: CGRect) -> CardView {
+        let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+        let cardView = CardView(frame: newRect)
+        cardView.backgroundColor = #colorLiteral(red: 0, green: 0.5628422499, blue: 0.3188166618, alpha: 0.7835308305)
+        cardView.layer.borderWidth = rect.width / 100
+        cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+        return cardView
     }
     
     private func dealCard(disable: Bool) {
