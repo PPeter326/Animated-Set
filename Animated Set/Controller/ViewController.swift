@@ -99,7 +99,7 @@ class ViewController: UIViewController {
                     if set.deck.isEmpty {
                         // If deck is empty, then the views are shifted.  There are now less card views than before (for ex 21 -> 18)
                         // 1. first make the matched (also selected) card views disappear but keep the rest of the cards intact
-                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [UIViewAnimationOptions.curveEaseIn], animations: {
+                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.1, options: [UIViewAnimationOptions.curveEaseIn], animations: {
                                 self.selectedCardViews.forEach{ $0.alpha = 0}
                             }, completion: { position in
                                 
@@ -116,18 +116,12 @@ class ViewController: UIViewController {
                             }
                         )
                     } else { // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
-                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
+                        // matched cards animation
+                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.1, options: [.allowAnimatedContent], animations: {
                             self.selectedCardViews.forEach{ $0.alpha = 0 }
-                        }, completion: { (position) in
-                            // restore selectedCardViews state
-                            self.selectedCardViews.forEach {
-                                $0.alpha = 1
-                                $0.layer.borderWidth = $0.frame.width / 100
-                                $0.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
-                            }
-                            self.makeCardViews()
-                            self.selectedCardViews.removeAll()
                         })
+                        self.makeCardViews()
+                        self.selectedCardViews.removeAll()
                     }
                 case .noMatch:
                     selectedCardViews.append(cardView)
@@ -217,35 +211,9 @@ class ViewController: UIViewController {
     }
     
     private func dealCards() {
-        // 1. tells game to deal three cards, then display the new cards
-        // make new cards views only if:
-        // A. A match was performed, but there was no match
-        // B. No match was performed.
-        set.dealCards { (clearSelection, matchedStatus) in
-            if clearSelection { // selections were cleared - that means a match was performed
-                if let matchedStatus = matchedStatus {
-                    if matchedStatus == false { // (A)
-                        makeCardViews()
-                    } else { // make cardViews only for those cards replaced
-                        for selectedCardView in selectedCardViews {
-                            let index = playingCardsMainView.cardViews.index(of: selectedCardView)!
-                            let card = set.playedCards[index]
-                            do {
-                                let cardView = try makeCardView(index: index, card: card)
-                                playingCardsMainView.addSubview(cardView)
-                                playingCardsMainView.cardViews.append(cardView)
-                            } catch {
-                                print(error.localizedDescription)
-                            }
-                        }
-                    }
-                }
-                // remove all selected card views
-                selectedCardViews.removeAll()
-            } else {
-                makeCardViews() // (B)
-            }
-        }
+//        tells game to deal three cards, then display the new cards
+        set.dealCards()
+        makeCardViews() // (B)
         if set.deck.count == 0 {
             dealCard(disable: true)
         }

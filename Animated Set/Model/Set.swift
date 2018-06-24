@@ -129,38 +129,13 @@ class Set {
     /// A. three cards already matched: deal cards to replace matched cards
     /// B. three cards not matched:  clear selected cards, and deal 3 cards to add at the end
     /// add three cards from deck to played cards at the end
-    func dealCards(completion: (_ clearSelection: Bool, _ matched: Bool?)-> Void) {
-        var matchedStatus: Bool?
+    func dealCards(){
         if !deck.isEmpty {
-            if let matched = matched { // there were 3 cards selected and a match was performed
-                if matched { // cards matched - dealt cards will replace the matched cards at index
-                    matchedStatus = true
-                    dealtCards.removeAll()
-                    for selectedCard in selectedCards {
-                        let card = deck.removeLast()
-                        playedCards[playedCards.index(of: selectedCard)!] = card
-                        dealtCards.append(card)
-                    }
-                } else {  // cards not matched - dealt cards simply gets added to the playedcards at the end
-                    dealtCards.removeAll()
-                    matchedStatus = false
-                    for _ in 1...3 {
-                        let card = deck.removeLast()
-                        playedCards.append(card)
-                        dealtCards.append(card)
-                    }
-                }
-                selectedCards.removeAll()
-                self.matched = nil // reset match
-                completion(true, matchedStatus)
-            } else { // There has not been any matching (user selected 0 - 2 cards only).  Append new dealt cards at the end.
-                dealtCards.removeAll()
-                for _ in 1...3 {
-                    let card = deck.removeLast()
-                    playedCards.append(card)
-                    dealtCards.append(card)
-                }
-                completion(false, matchedStatus)
+            dealtCards.removeAll()
+            for _ in 1...3 {
+                let card = deck.removeLast()
+                playedCards.append(card)
+                dealtCards.append(card)
             }
         }
     }
