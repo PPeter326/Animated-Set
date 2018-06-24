@@ -30,41 +30,19 @@ class PlayingCardsMainView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         
         print(#function)
-//        grid.frame = self.bounds
-//        layoutIfNeeded()
-//        updateCardsFrame()
         setNeedsLayout()
     }
     override func layoutSubviews() {
         super.layoutSubviews()
         grid.frame = self.bounds
-
         print(#function)
         updateCardsFrame()
-//        for (index, cardView) in self.cardViews.enumerated() {
-//            guard let rect = self.grid[index] else { return }
-//            let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-//            cardView.frame = newRect
-//        }
+
     }
     
     /// Update each cardView's frame with the new CGRect from grid object
     func updateCardsFrame() {
         print(#function)
-//        animate(startingIndex: 0)
-//        for index in cardViews.indices {
-//            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { (timer) in
-//                self.animate(index: index)
-//            })
-//        }
-//        while index < (cardViews.count - 1) {
-//            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { (timer) in
-//                self.animate(index: index)
-//                index += 1
-//            })
-//            timer?.invalidate()
-//        }
-
         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [.allowAnimatedContent], animations: {
             for (index, cardView) in self.cardViews.enumerated() {
                 guard let rect = self.grid[index] else { return }
@@ -73,28 +51,6 @@ class PlayingCardsMainView: UIView {
             }
         })
     }
-//    func animate(startingIndex: Int) {
-//            UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 1.0, options: [.layoutSubviews], animations: {
-//                guard let rect = self.grid[startingIndex] else { return }
-//                let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-//                let cardView = self.cardViews[startingIndex]
-//                cardView.frame = newRect
-//            }, completion: { finished in
-//                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 1.0, options: [.layoutSubviews], animations: {
-//                    guard let rect = self.grid[(startingIndex + 1)] else { return }
-//                    let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-//                    let cardView = self.cardViews[(startingIndex + 1)]
-//                    cardView.frame = newRect
-//                }, completion: { finished in
-//                    UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 1.0, options: [.layoutSubviews], animations: {
-//                        guard let rect = self.grid[(startingIndex + 2)] else { return }
-//                        let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-//                        let cardView = self.cardViews[(startingIndex + 2)]
-//                        cardView.frame = newRect
-//                    }, completion: nil)
-//                })
-//            })
-//    }
     
     func reset() {
         self.cardViews.forEach{ $0.removeFromSuperview() }

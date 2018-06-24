@@ -48,8 +48,6 @@ class ViewController: UIViewController {
     
     var selectedCardViews = [CardView]()
     
-    var dealtCardViews = [CardView]()
-    
     // MARK: Card Attributes
     private let colorDictionary: [Card.Color: UIColor] = [
         .color1: #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1),
@@ -258,18 +256,18 @@ class ViewController: UIViewController {
     
     private func makeCardViews() {
         print(#function)
-        // reset dealtCardViews
-        dealtCardViews.removeAll()
-        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.5, delay: 0, options: [], animations: {
-            // prepare playingCardsMainView for new cardView frames
-            self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
-            self.playingCardsMainView.grid.frame = self.playingCardsMainView.bounds
-            for (index, cardView) in self.playingCardsMainView.cardViews.enumerated() {
-                guard let rect = self.playingCardsMainView.grid[index] else { return }
-                let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-                cardView.frame = newRect
-            }
+        // prepare playingCardsMainView for new cardView frames
+        self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
+        self.playingCardsMainView.grid.frame = self.playingCardsMainView.bounds
+        // Animate cardviews as they adjust to new frame
+        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
+                for (index, cardView) in self.playingCardsMainView.cardViews.enumerated() {
+                    guard let rect = self.playingCardsMainView.grid[index] else { return }
+                    let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+                    cardView.frame = newRect
+                }
         }) { (position) in
+            var delay: TimeInterval = 0
             // Only update view for new additions
             for dealtCard in self.set.dealtCards {
                 // get index of dealt card amongst played cards
@@ -277,46 +275,24 @@ class ViewController: UIViewController {
                 // make cardView from index
                 do {
                     let cardView = try self.makeCardView(index: cardIndex, card: dealtCard)
+                    let assignedCardViewFrame = cardView.frame
                     // move cardview to deck
                     cardView.alpha = 1
                     cardView.frame = self.playingCardsMainView.deckFrame
-                    // keep track of the dealt cardViews
-                    self.dealtCardViews.append(cardView)
+                    // animate cardView as it goes back to the frame
+                    UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
+                        self.playingCardsMainView.addSubview(cardView)
+                        self.playingCardsMainView.cardViews.append(cardView)
+                        cardView.frame = assignedCardViewFrame
+                    }, completion: nil)
+                    // increment delay
+                    delay += 0.5
                 } catch {
                     print(error)
                 }
             }
-            self.animate(startingDealtCardIndex: 0)
         }
     }
-    
-    
-    private func animate(startingDealtCardIndex: Int) {
-        print(#function)
-        let dealtCard = self.set.dealtCards[startingDealtCardIndex]
-        let dealtCardView = self.dealtCardViews[startingDealtCardIndex]
-        
-        // retrieve frame from grid of the specific dealt card
-        guard let dealtCardIndex = self.set.playedCards.index(of: dealtCard) else { return }
-        guard let frame = self.playingCardsMainView.grid[dealtCardIndex] else { return }
-        // 1. get index of dealt card from played cards -> self.set.playedCards.index(of: dealtCard)
-        let newFrame = frame.insetBy(dx: frame.width / 10, dy: frame.height / 10)
-        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.5, delay: 0, options: [], animations: {
-            
-            dealtCardView.frame = newFrame
-            
-            // adding dealt card views to the playingcards main view
-            self.playingCardsMainView.addSubview(dealtCardView)
-            self.playingCardsMainView.cardViews.append(dealtCardView)
-            
-        }) { (position) in
-//            self.playingCardsMainView.layoutIfNeeded()
-            if startingDealtCardIndex < (self.dealtCardViews.count - 1) {
-                self.animate(startingDealtCardIndex: startingDealtCardIndex + 1)
-            }
-        }
-    }
-        
     
     private func makeCardView(index: Int, card: Card) throws -> CardView {
         guard let rect = playingCardsMainView.grid[index] else { throw CardViewGeneratorError.invalidFrame }

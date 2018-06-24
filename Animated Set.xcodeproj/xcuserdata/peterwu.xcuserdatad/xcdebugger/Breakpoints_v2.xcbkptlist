@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Animated Set/View/PlayingCardsMainView.swift"
-            timestampString = "551398817.83911"
+            timestampString = "551499007.486281"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "53"
-            endingLineNumber = "53"
+            startingLineNumber = "45"
+            endingLineNumber = "45"
             landmarkName = "updateCardsFrame()"
             landmarkType = "7">
          </BreakpointContent>
