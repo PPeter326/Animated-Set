@@ -69,7 +69,6 @@ class ViewController: UIViewController {
     
     // MARK: - View Config -
     
-    
     // MARK: - User Actions -
     
     @objc func selectCard( _ gestureRecognizer: UITapGestureRecognizer) {
@@ -116,12 +115,38 @@ class ViewController: UIViewController {
                             }
                         )
                     } else { // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
+                        //
                         // matched cards animation
                         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.1, options: [.allowAnimatedContent], animations: {
                             self.selectedCardViews.forEach{ $0.alpha = 0 }
-                        })
-                        self.makeCardViews()
-                        self.selectedCardViews.removeAll()
+                        }, completion: nil)
+                        // animate dealing cards to replace matched cards.  Not making new cardviews.
+                        var delay: TimeInterval = 0
+                        for (index, cardView) in self.selectedCardViews.enumerated() {
+                            // move the cardviews to deck
+                            let assignedFrame = cardView.frame
+                            cardView.frame = playingCardsMainView.deckFrame
+                            // double check played card and cardviews index
+                            let cardIndex = set.playedCards.index(of: set.dealtCards[index])
+                            let cardViewIndex = playingCardsMainView.cardViews.index(of: cardView)
+                            assert(cardIndex == cardViewIndex, "mismatched cardview and dealt card")
+                            do {
+                                // update cardview for the new dealt cards
+                              try configureCardView(cardView: cardView, card: set.dealtCards[index])
+                                cardView.layer.borderWidth = cardView.frame.width / 100
+                                cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+                                // animate move updated cardview back to its assigned position
+                                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
+                                    cardView.frame = assignedFrame
+                                    cardView.alpha = 1.0
+                                }, completion: nil)
+                            } catch {
+                                print(error.localizedDescription)
+                            }
+                            delay += 0.5
+                        }
+                        // remove selectedCardViews after animation
+                        selectedCardViews.removeAll()
                     }
                 case .noMatch:
                     selectedCardViews.append(cardView)
@@ -130,19 +155,20 @@ class ViewController: UIViewController {
                         cardView.layer.borderColor =  UIColor.red.cgColor
                     })
                     
-                    UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
+                    UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0.1, options: [.allowAnimatedContent], animations: {
                         self.selectedCardViews.forEach({ (selectedCardView) in
-                            selectedCardView.transform = CGAffineTransform.identity.scaledBy(x: 0.8, y: 0.8)
+                            selectedCardView.transform = CGAffineTransform.identity.scaledBy(x: 1.2, y: 1.2)
                         })
                     }, completion: { (position) in
-                        // No need to transform cardView back because it's being done in updateFrames() in PlayingCardsMainView
-                        // restore selected cards back to its original property then remove from selectedCardViews array
-                        self.selectedCardViews.forEach {
-                            $0.layer.borderWidth = $0.frame.width / 100
-                            $0.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
-//                            $0.transform = .identity
-                        }
-                        self.selectedCardViews.removeAll()
+                            self.selectedCardViews.forEach { cardView in
+                                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
+                                        cardView.transform = .identity
+                                }, completion: { position in
+                                    cardView.layer.borderWidth = cardView.frame.width / 100
+                                    cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+                                })
+                            }
+                            self.selectedCardViews.removeAll()
                     })
                 default: break
                 }
@@ -265,6 +291,29 @@ class ViewController: UIViewController {
     private func makeCardView(index: Int, card: Card) throws -> CardView {
         guard let rect = playingCardsMainView.grid[index] else { throw CardViewGeneratorError.invalidFrame }
         let cardView = makeCell(rect: rect)
+        do {
+            try configureCardView(cardView: cardView, card: card)
+        } catch {
+            print(error.localizedDescription)
+        }
+//        guard let color = colorDictionary[card.color] else { throw CardViewGeneratorError.invalidColor }
+//        guard let shape = shapeDictionary[card.shape] else { throw CardViewGeneratorError.invalidShape }
+//        let numberOfShapes = card.numberOfShapes.rawValue
+//        guard let shading = shadingDictionary[card.shading] else { throw CardViewGeneratorError.invalidShading }
+//
+//        cardView.color = color
+//        cardView.shade = shading
+//        cardView.shape = shape
+//        cardView.numberOfShapes = numberOfShapes
+//        cardView.alpha = 0
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(selectCard(_:)))
+        tap.numberOfTapsRequired = 1
+        cardView.addGestureRecognizer(tap)
+        
+        return cardView
+    }
+    private func configureCardView(cardView: CardView, card: Card ) throws {
         guard let color = colorDictionary[card.color] else { throw CardViewGeneratorError.invalidColor }
         guard let shape = shapeDictionary[card.shape] else { throw CardViewGeneratorError.invalidShape }
         let numberOfShapes = card.numberOfShapes.rawValue
@@ -276,13 +325,7 @@ class ViewController: UIViewController {
         cardView.numberOfShapes = numberOfShapes
         cardView.alpha = 0
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(selectCard(_:)))
-        tap.numberOfTapsRequired = 1
-        cardView.addGestureRecognizer(tap)
-        
-        return cardView
     }
-    
     private func makeCell(rect: CGRect) -> CardView {
         let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
         let cardView = CardView(frame: newRect)
