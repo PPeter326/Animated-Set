@@ -82,11 +82,12 @@ class ViewController: UIViewController {
                 switch result {
                 case .selected:
                     selectedCardViews.append(cardView)
-                    cardView.layer.borderWidth = cardView.frame.width * SizeRatio.highlightBorderWidthRatio
-                    cardView.layer.borderColor = BorderColor.selectedBorderColor
+                    // change cardview to show
+                    cardView.showSelection()
+                    
                 case .deselected:
-                    cardView.layer.borderWidth = cardView.frame.width * SizeRatio.defaultBorderWidthRatio
-                    cardView.layer.borderColor = BorderColor.defaultBorderColor
+                    cardView.showNoSelection()
+                    
                     guard let index = selectedCardViews.index(of: cardView) else { return }
                     selectedCardViews.remove(at: index)
                     // update score
@@ -94,14 +95,14 @@ class ViewController: UIViewController {
                 case .matched:
                     selectedCardViews.append(cardView)
                     selectedCardViews.forEach {
-                        $0.layer.borderWidth = $0.frame.width * SizeRatio.highlightBorderWidthRatio
-                        $0.layer.borderColor =  UIColor.green.cgColor
+                        $0.showMatch()
+                        
                     }
                     if set.deck.isEmpty {
                         // If deck is empty, then the views are shifted.  There are now less card views than before (for ex 21 -> 18)
                         // 1. first make the matched (also selected) card views disappear but keep the rest of the cards intact
                         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.1, options: [UIViewAnimationOptions.curveEaseIn], animations: {
-                                self.selectedCardViews.forEach{ $0.alpha = 0}
+                                self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
                             }, completion: { position in
                                 
                                 // remove the selected cardviews
@@ -125,7 +126,8 @@ class ViewController: UIViewController {
                             let tempCardView = makeEmptyCardView(rect: tempRect)
                             do {
                                 try configureCardView(cardView: tempCardView, card: card)
-                                tempCardView.alpha = 1
+                                tempCardView.showMatch()
+                                tempCardView.alpha = ViewTransparency.opaque
                                 playingCardsMainView.addSubview(tempCardView)
                                 playingCardsMainView.tempCardViews.append(tempCardView)
                                 tempCardViews.append(tempCardView)
@@ -134,7 +136,7 @@ class ViewController: UIViewController {
                             }
                         }
                         // 2. animate temp card views frame to pile frame
-                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0, options: [], animations: {
+                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.2, delay: 0.1, options: [], animations: {
                             self.playingCardsMainView.tempCardViews.forEach {
                                 $0.frame = self.playingCardsMainView.pileFrame
                             }
@@ -148,8 +150,8 @@ class ViewController: UIViewController {
                         })
                         
                         // deal card animations
-                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.1, options: [.allowAnimatedContent], animations: {
-                            self.selectedCardViews.forEach{ $0.alpha = 0 }
+                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
+                            self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
                         }, completion: nil)
                         // animate dealing cards to replace matched cards.  Not making new cardviews.
                         var delay: TimeInterval = 0
@@ -164,12 +166,12 @@ class ViewController: UIViewController {
                             do {
                                 // update cardview for the new dealt cards
                               try configureCardView(cardView: cardView, card: set.dealtCards[index])
-                                cardView.layer.borderWidth = cardView.frame.width * SizeRatio.defaultBorderWidthRatio
-                                cardView.layer.borderColor = BorderColor.defaultBorderColor
+                                cardView.showNoSelection()
+                                
                                 // animate move updated cardview back to its assigned position
                                 UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
                                     cardView.frame = assignedFrame
-                                    cardView.alpha = 1.0
+                                    cardView.alpha = ViewTransparency.opaque
                                 }, completion: nil)
                             } catch {
                                 print(error.localizedDescription)
@@ -182,8 +184,8 @@ class ViewController: UIViewController {
                 case .noMatch:
                     selectedCardViews.append(cardView)
                     selectedCardViews.forEach({ (cardView) in
-                        cardView.layer.borderWidth = cardView.frame.width * SizeRatio.highlightBorderWidthRatio
-                        cardView.layer.borderColor =  BorderColor.mismatchBorderColor
+                        cardView.showNoMatch()
+                        
                     })
                     
                     UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0.1, options: [.allowAnimatedContent], animations: {
@@ -195,8 +197,8 @@ class ViewController: UIViewController {
                                 UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
                                         cardView.transform = .identity
                                 }, completion: { position in
-                                    cardView.layer.borderWidth = cardView.frame.width * SizeRatio.defaultBorderWidthRatio
-                                    cardView.layer.borderColor = BorderColor.defaultBorderColor
+                                    cardView.showNoSelection()
+                                    
                                 })
                             }
                             self.selectedCardViews.removeAll()
@@ -281,8 +283,8 @@ class ViewController: UIViewController {
         // reset frame for each cardview
         for (index, cardView) in self.playingCardsMainView.cardViews.enumerated() {
             guard let rect = self.playingCardsMainView.grid[index] else { return }
-            let newRect = rect.insetBy(dx: rect.width * SizeRatio.insetWidthRatio, dy: rect.height * SizeRatio.insetHeightRatio)
-            cardView.frame = newRect
+            cardView.frame = rect
+            cardView.insetFrame()
         }
     }
     
@@ -300,7 +302,7 @@ class ViewController: UIViewController {
                     // keep track of old cardframe for animating back to its original size/position
                     let oldCardFrame = cardView.frame
                     // Make cardview opaquge and move to deck
-                    cardView.alpha = 1
+                    cardView.alpha = ViewTransparency.opaque
                     cardView.frame = self.playingCardsMainView.deckFrame
                     // animate cardView as it goes back to the frame
                     UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
@@ -353,15 +355,14 @@ class ViewController: UIViewController {
         cardView.shade = shading
         cardView.shape = shape
         cardView.numberOfShapes = numberOfShapes
-        cardView.alpha = 0
+        cardView.alpha = ViewTransparency.opaque
     }
     
     private func makeEmptyCardView(rect: CGRect) -> CardView {
-        let newRect = rect.insetBy(dx: rect.width * SizeRatio.insetWidthRatio, dy: rect.height * SizeRatio.insetHeightRatio)
-        let cardView = CardView(frame: newRect)
+        let cardView = CardView(frame: rect)
+        cardView.insetFrame()
         cardView.backgroundColor = #colorLiteral(red: 0, green: 0.5628422499, blue: 0.3188166618, alpha: 0.7835308305)
-        cardView.layer.borderWidth = rect.width * SizeRatio.defaultBorderWidthRatio
-        cardView.layer.borderColor = BorderColor.defaultBorderColor
+        cardView.showNoSelection()
         return cardView
     }
     
@@ -376,17 +377,14 @@ class ViewController: UIViewController {
             self.dealCardButton.setTitleColor(UIColor.white, for: .normal)
         }
     }
-    private struct SizeRatio {
-        static var insetWidthRatio: CGFloat = 0.10
-        static var insetHeightRatio: CGFloat = 0.10
-        static var defaultBorderWidthRatio: CGFloat = 0.01
-        static var highlightBorderWidthRatio: CGFloat = 0.0667
+    
+    private struct ViewTransparency {
+        static let opaque: CGFloat = 1.0
+        static let transparent: CGFloat = 0
     }
-    private struct BorderColor {
-        static var defaultBorderColor: CGColor = UIColor.black.cgColor
-        static var mismatchBorderColor: CGColor = UIColor.red.cgColor
-        static var selectedBorderColor: CGColor = #colorLiteral(red: 0, green: 0.9914394021, blue: 1, alpha: 1).cgColor
-    }
+    
 }
+
+
 
 

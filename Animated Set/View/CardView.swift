@@ -44,7 +44,27 @@ class CardView: UIView {
 //    }
     
     
+    func showNoSelection() {
+        self.layer.borderWidth = self.frame.width * SizeRatio.defaultBorderWidthRatio
+        self.layer.borderColor = BorderColor.defaultBorderColor
+    }
+    func showSelection() {
+        self.layer.borderWidth = self.frame.width * SizeRatio.highlightBorderWidthRatio
+        self.layer.borderColor = BorderColor.selectedBorderColor
+    }
+    func showMatch() {
+        self.layer.borderWidth = self.frame.width * SizeRatio.highlightBorderWidthRatio
+        self.layer.borderColor =  BorderColor.matchedBorderColor
+    }
+    func showNoMatch() {
+        self.layer.borderWidth = self.frame.width * SizeRatio.highlightBorderWidthRatio
+        self.layer.borderColor =  BorderColor.mismatchBorderColor
+    }
     
+    func insetFrame() {
+        let newFrame = self.frame.insetBy(dx: self.frame.width * SizeRatio.insetWidthRatio, dy: self.frame.height * SizeRatio.insetHeightRatio)
+        self.frame = newFrame
+    }
     private func divide(rect: CGRect, numberOfSymbols: Int) -> [CGRect] {
         // determine rectangle ratio of width and height.  If width is wider than height, then divide across horizontally
         let ratio = rect.size.width / rect.size.height
@@ -149,6 +169,19 @@ class CardView: UIView {
         path.close()
         color.setStroke()
         path.stroke()
+    }
+    
+    private struct SizeRatio {
+        static var insetWidthRatio: CGFloat = 0.10
+        static var insetHeightRatio: CGFloat = 0.10
+        static var defaultBorderWidthRatio: CGFloat = 0.01
+        static var highlightBorderWidthRatio: CGFloat = 0.0667
+    }
+    private struct BorderColor {
+        static var defaultBorderColor: CGColor = UIColor.black.cgColor
+        static var mismatchBorderColor: CGColor = UIColor.red.cgColor
+        static var selectedBorderColor: CGColor = #colorLiteral(red: 0, green: 0.9914394021, blue: 1, alpha: 1).cgColor
+        static var matchedBorderColor: CGColor = UIColor.green.cgColor
     }
 
 }
