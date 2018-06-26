@@ -47,6 +47,7 @@ class ViewController: UIViewController {
     }
     
     var selectedCardViews = [CardView]()
+    var tempCardViews = [CardView]()
     
     // MARK: Card Attributes
     private let colorDictionary: [Card.Color: UIColor] = [
@@ -115,8 +116,37 @@ class ViewController: UIViewController {
                             }
                         )
                     } else { // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
-                        //
                         // matched cards animation
+                        // 1. create temp card views for the matched cards
+                        let lastMatchedCards = set.matchedCards.suffix(3)
+                        for (index, card) in lastMatchedCards.enumerated() {
+                            let tempRect = selectedCardViews[index].frame
+                            let tempCardView = makeCell(rect: tempRect)
+                            do {
+                                try configureCardView(cardView: tempCardView, card: card)
+                                tempCardView.alpha = 1
+                                playingCardsMainView.addSubview(tempCardView)
+                                playingCardsMainView.tempCardViews.append(tempCardView)
+                                tempCardViews.append(tempCardView)
+                            } catch {
+                                print(error.localizedDescription)
+                            }
+                        }
+                        // 2. animate temp card views frame to pile frame
+                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0, options: [], animations: {
+                            self.playingCardsMainView.tempCardViews.forEach {
+                                $0.frame = self.playingCardsMainView.pileFrame
+                            }
+                        }, completion: { (position) in
+                            // 3. remove temp card views
+                            self.tempCardViews.removeAll()
+                            self.playingCardsMainView.tempCardViews.forEach({ (cardView) in
+                                cardView.removeFromSuperview()
+                            })
+                            self.playingCardsMainView.tempCardViews.removeAll()
+                        })
+                        
+                        // deal card animations
                         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.1, options: [.allowAnimatedContent], animations: {
                             self.selectedCardViews.forEach{ $0.alpha = 0 }
                         }, completion: nil)
@@ -296,17 +326,6 @@ class ViewController: UIViewController {
         } catch {
             print(error.localizedDescription)
         }
-//        guard let color = colorDictionary[card.color] else { throw CardViewGeneratorError.invalidColor }
-//        guard let shape = shapeDictionary[card.shape] else { throw CardViewGeneratorError.invalidShape }
-//        let numberOfShapes = card.numberOfShapes.rawValue
-//        guard let shading = shadingDictionary[card.shading] else { throw CardViewGeneratorError.invalidShading }
-//
-//        cardView.color = color
-//        cardView.shade = shading
-//        cardView.shape = shape
-//        cardView.numberOfShapes = numberOfShapes
-//        cardView.alpha = 0
-        
         let tap = UITapGestureRecognizer(target: self, action: #selector(selectCard(_:)))
         tap.numberOfTapsRequired = 1
         cardView.addGestureRecognizer(tap)
@@ -347,6 +366,5 @@ class ViewController: UIViewController {
         }
     }
 }
-
 
 

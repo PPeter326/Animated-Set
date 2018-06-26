@@ -17,7 +17,7 @@ class PlayingCardsMainView: UIView {
     lazy var grid = Grid(layout: Grid.Layout.aspectRatio(AspectRatio.cardViewRectangle), frame: self.bounds)
 //    private weak var timer: Timer?
     lazy var deckFrame = CGRect(x: self.frame.minX, y: self.frame.maxY, width: self.frame.width/20, height: self.frame.width/20)
-    lazy var pileFrame = CGRect(x: self.frame.maxX, y: self.frame.maxY, width: self.frame.width/20, height: self.frame.width/20)
+    lazy var pileFrame = CGRect(x: (self.frame.maxX - self.frame.width/20), y: self.frame.maxY, width: self.frame.width/20, height: self.frame.width/20)
     var orientationChanged = false
     var numberOfCardViews: Int = 0 {
         didSet {
@@ -28,6 +28,7 @@ class PlayingCardsMainView: UIView {
     }
     
     var cardViews: [CardView] = []
+    var tempCardViews: [CardView] = []
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
