@@ -15,4 +15,5 @@ enum CardViewGeneratorError: Error {
     case invalidNumberOfShapes
     case invalidShading
     case invalidFrame
+    case invalidIndex
 }

@@ -57,7 +57,6 @@ class Set {
     init() {
         deck = Card.all
         shuffleCards()
-        drawCards()
     }
     
     // MARK: - Game Methdods
@@ -149,7 +148,6 @@ class Set {
         
         self.deck = Card.all
         shuffleCards()
-        drawCards()
     }
     
     // MARK: - Helper Methods
@@ -175,7 +173,7 @@ class Set {
         self.deck = shuffledCards
     }
     
-    private func drawCards() {
+    func startGamme() {
         dealtCards.removeAll()
         for _ in 0...11 {
             let card = deck.removeLast()

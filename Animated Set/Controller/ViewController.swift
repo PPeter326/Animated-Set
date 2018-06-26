@@ -14,18 +14,7 @@ class ViewController: UIViewController {
     // MARK: - Game Properties -
     private var set = Set()
     
-    @IBOutlet weak var playingCardsMainView: PlayingCardsMainView! {
-        didSet {
-            // make new cardviews
-            makeCardViews()
-            // add swipe and rotate gestures to deal and shuffle, respectively
-            let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(swipeDownToDeal(_:)))
-            swipeDown.direction = .down
-            playingCardsMainView.addGestureRecognizer(swipeDown)
-            let rotate = UIRotationGestureRecognizer(target: self, action: #selector(rotateToShuffle(_:)))
-            playingCardsMainView.addGestureRecognizer(rotate)
-        }
-    }
+    @IBOutlet weak var playingCardsMainView: PlayingCardsMainView!
     private weak var timer: Timer?
     @IBOutlet weak var scoreLabel: UILabel! {
         didSet {
@@ -69,7 +58,17 @@ class ViewController: UIViewController {
     ]
     
     // MARK: - View Config -
-    
+    override func viewDidLoad() {
+        set.startGamme()
+        // show card views
+        showDealtCards()
+        // add swipe and rotate gestures to deal and shuffle, respectively
+        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(swipeDownToDeal(_:)))
+        swipeDown.direction = .down
+        playingCardsMainView.addGestureRecognizer(swipeDown)
+        let rotate = UIRotationGestureRecognizer(target: self, action: #selector(rotateToShuffle(_:)))
+        playingCardsMainView.addGestureRecognizer(rotate)
+    }
     // MARK: - User Actions -
     
     @objc func selectCard( _ gestureRecognizer: UITapGestureRecognizer) {
@@ -83,17 +82,19 @@ class ViewController: UIViewController {
                 switch result {
                 case .selected:
                     selectedCardViews.append(cardView)
-                    cardView.layer.borderWidth = cardView.frame.width / 15
-                    cardView.layer.borderColor = #colorLiteral(red: 0, green: 0.9914394021, blue: 1, alpha: 1).cgColor
+                    cardView.layer.borderWidth = cardView.frame.width * SizeRatio.highlightBorderWidthRatio
+                    cardView.layer.borderColor = BorderColor.selectedBorderColor
                 case .deselected:
-                    cardView.layer.borderWidth = cardView.frame.width / 100
-                    cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+                    cardView.layer.borderWidth = cardView.frame.width * SizeRatio.defaultBorderWidthRatio
+                    cardView.layer.borderColor = BorderColor.defaultBorderColor
                     guard let index = selectedCardViews.index(of: cardView) else { return }
                     selectedCardViews.remove(at: index)
+                    // update score
+                    score = set.score
                 case .matched:
                     selectedCardViews.append(cardView)
                     selectedCardViews.forEach {
-                        $0.layer.borderWidth = $0.frame.width / 15
+                        $0.layer.borderWidth = $0.frame.width * SizeRatio.highlightBorderWidthRatio
                         $0.layer.borderColor =  UIColor.green.cgColor
                     }
                     if set.deck.isEmpty {
@@ -121,7 +122,7 @@ class ViewController: UIViewController {
                         let lastMatchedCards = set.matchedCards.suffix(3)
                         for (index, card) in lastMatchedCards.enumerated() {
                             let tempRect = selectedCardViews[index].frame
-                            let tempCardView = makeCell(rect: tempRect)
+                            let tempCardView = makeEmptyCardView(rect: tempRect)
                             do {
                                 try configureCardView(cardView: tempCardView, card: card)
                                 tempCardView.alpha = 1
@@ -163,8 +164,8 @@ class ViewController: UIViewController {
                             do {
                                 // update cardview for the new dealt cards
                               try configureCardView(cardView: cardView, card: set.dealtCards[index])
-                                cardView.layer.borderWidth = cardView.frame.width / 100
-                                cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+                                cardView.layer.borderWidth = cardView.frame.width * SizeRatio.defaultBorderWidthRatio
+                                cardView.layer.borderColor = BorderColor.defaultBorderColor
                                 // animate move updated cardview back to its assigned position
                                 UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
                                     cardView.frame = assignedFrame
@@ -181,8 +182,8 @@ class ViewController: UIViewController {
                 case .noMatch:
                     selectedCardViews.append(cardView)
                     selectedCardViews.forEach({ (cardView) in
-                        cardView.layer.borderWidth = cardView.frame.width / 15
-                        cardView.layer.borderColor =  UIColor.red.cgColor
+                        cardView.layer.borderWidth = cardView.frame.width * SizeRatio.highlightBorderWidthRatio
+                        cardView.layer.borderColor =  BorderColor.mismatchBorderColor
                     })
                     
                     UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0.1, options: [.allowAnimatedContent], animations: {
@@ -194,8 +195,8 @@ class ViewController: UIViewController {
                                 UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
                                         cardView.transform = .identity
                                 }, completion: { position in
-                                    cardView.layer.borderWidth = cardView.frame.width / 100
-                                    cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+                                    cardView.layer.borderWidth = cardView.frame.width * SizeRatio.defaultBorderWidthRatio
+                                    cardView.layer.borderColor = BorderColor.defaultBorderColor
                                 })
                             }
                             self.selectedCardViews.removeAll()
@@ -208,14 +209,15 @@ class ViewController: UIViewController {
         }
     }
     @IBAction func newGameButtonTouched(_ sender: UIButton) {
-        // reset game
+        // reset and restart game
         set.reset()
+        set.startGamme()
         // clear selectedCardViews and card views
         self.selectedCardViews.removeAll()
         playingCardsMainView.reset()
         // update card views
-        makeCardViews()
-        // update score
+        showDealtCards()
+        // update score and enable dealCardButton
         score = set.score
         dealCard(disable: false)
         
@@ -242,7 +244,7 @@ class ViewController: UIViewController {
                 // shuffle remaining cards in play and deck
                 set.shuffleRemainingCards()
                 // update cardViews
-                makeCardViews()
+                showDealtCards()
             }
         default: break
         }
@@ -252,15 +254,10 @@ class ViewController: UIViewController {
     private func updateAttributedString(_ string: String) -> NSAttributedString {
         var font = UIFont.preferredFont(forTextStyle: .headline).withSize(scoreLabel.frame.height * 0.85)
         font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: font)
-        //        let strokeColor = UIColor.black
-        //
-        //        let strokeWidth = scoreLabel.frame.height / 2
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
         let stringAttributes: [NSAttributedStringKey: Any] = [
             .font: font,
-            //            .strokeColor: strokeColor,
-            //            .strokeWidth: strokeWidth,
             .paragraphStyle: paragraphStyle
         ]
         return NSAttributedString(string: string, attributes: stringAttributes)
@@ -269,7 +266,7 @@ class ViewController: UIViewController {
     private func dealCards() {
 //        tells game to deal three cards, then display the new cards
         set.dealCards()
-        makeCardViews() // (B)
+        showDealtCards()
         if set.deck.count == 0 {
             dealCard(disable: true)
         }
@@ -278,79 +275,93 @@ class ViewController: UIViewController {
     // MARK: - Helper Functions -
     
     
-    private func makeCardViews() {
-        print(#function)
+    fileprivate func adjustCardViewsToNewFrame() {
         // prepare playingCardsMainView for new cardView frames
         self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
-        self.playingCardsMainView.grid.frame = self.playingCardsMainView.bounds
+        // reset frame for each cardview
+        for (index, cardView) in self.playingCardsMainView.cardViews.enumerated() {
+            guard let rect = self.playingCardsMainView.grid[index] else { return }
+            let newRect = rect.insetBy(dx: rect.width * SizeRatio.insetWidthRatio, dy: rect.height * SizeRatio.insetHeightRatio)
+            cardView.frame = newRect
+        }
+    }
+    
+    private func showDealtCards() {
         // Animate cardviews as they adjust to new frame
         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
-                for (index, cardView) in self.playingCardsMainView.cardViews.enumerated() {
-                    guard let rect = self.playingCardsMainView.grid[index] else { return }
-                    let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-                    cardView.frame = newRect
-                }
+            self.adjustCardViewsToNewFrame()
         }) { (position) in
             var delay: TimeInterval = 0
             // Only update view for new additions
             for dealtCard in self.set.dealtCards {
-                // get index of dealt card amongst played cards
-                guard let cardIndex = self.set.playedCards.index(of: dealtCard) else { return }
-                // make cardView from index
                 do {
-                    let cardView = try self.makeCardView(index: cardIndex, card: dealtCard)
-                    let assignedCardViewFrame = cardView.frame
-                    // move cardview to deck
+                    // create cardView with given card position
+                    let cardView = try self.makeCardView(card: dealtCard)
+                    // keep track of old cardframe for animating back to its original size/position
+                    let oldCardFrame = cardView.frame
+                    // Make cardview opaquge and move to deck
                     cardView.alpha = 1
                     cardView.frame = self.playingCardsMainView.deckFrame
                     // animate cardView as it goes back to the frame
                     UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
                         self.playingCardsMainView.addSubview(cardView)
                         self.playingCardsMainView.cardViews.append(cardView)
-                        cardView.frame = assignedCardViewFrame
+                        cardView.frame = oldCardFrame
                     }, completion: nil)
-                    // increment delay
+                    // increment animation delay for the next card
                     delay += 0.5
                 } catch {
-                    print(error)
+                    print("error from making cardView: \(error)")
                 }
             }
         }
     }
     
-    private func makeCardView(index: Int, card: Card) throws -> CardView {
-        guard let rect = playingCardsMainView.grid[index] else { throw CardViewGeneratorError.invalidFrame }
-        let cardView = makeCell(rect: rect)
-        do {
-            try configureCardView(cardView: cardView, card: card)
-        } catch {
-            print(error.localizedDescription)
-        }
+    fileprivate func addTapGesture(_ cardView: CardView) {
         let tap = UITapGestureRecognizer(target: self, action: #selector(selectCard(_:)))
         tap.numberOfTapsRequired = 1
         cardView.addGestureRecognizer(tap)
-        
+    }
+    
+    /// Makes a cardview for a card in play
+    ///
+    /// - Parameters:
+    ///   - card: the card being played in the game
+    /// - Returns: A CardView displaying attributes of the card that also recognizes tap gesture.  The cardview's frame is positioned in PlayingCardsMainView's grid in the same index as the card.
+    /// - Throws: Error if index position cannot be found on the grid object of playingCardsMainView
+    private func makeCardView(card: Card) throws -> CardView {
+        guard let positionIndex = self.set.playedCards.index(of: card) else { throw CardViewGeneratorError.invalidIndex }
+        guard let rect = playingCardsMainView.grid[positionIndex] else { throw CardViewGeneratorError.invalidFrame }
+        let cardView = makeEmptyCardView(rect: rect)
+        try configureCardView(cardView: cardView, card: card)
+        addTapGesture(cardView)
         return cardView
     }
+    
+    /// Configures a CardView to display attributes of a given card
+    ///
+    /// - Parameters:
+    ///   - cardView: A CardView object
+    ///   - card: A given card
+    /// - Throws: Error if the function is unable to retrieve card attributes such as color and shapes from dictionary
     private func configureCardView(cardView: CardView, card: Card ) throws {
         guard let color = colorDictionary[card.color] else { throw CardViewGeneratorError.invalidColor }
         guard let shape = shapeDictionary[card.shape] else { throw CardViewGeneratorError.invalidShape }
         let numberOfShapes = card.numberOfShapes.rawValue
         guard let shading = shadingDictionary[card.shading] else { throw CardViewGeneratorError.invalidShading }
-        
         cardView.color = color
         cardView.shade = shading
         cardView.shape = shape
         cardView.numberOfShapes = numberOfShapes
         cardView.alpha = 0
-        
     }
-    private func makeCell(rect: CGRect) -> CardView {
-        let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
+    
+    private func makeEmptyCardView(rect: CGRect) -> CardView {
+        let newRect = rect.insetBy(dx: rect.width * SizeRatio.insetWidthRatio, dy: rect.height * SizeRatio.insetHeightRatio)
         let cardView = CardView(frame: newRect)
         cardView.backgroundColor = #colorLiteral(red: 0, green: 0.5628422499, blue: 0.3188166618, alpha: 0.7835308305)
-        cardView.layer.borderWidth = rect.width / 100
-        cardView.layer.borderColor = #colorLiteral(red: 0.06274510175, green: 0, blue: 0.1921568662, alpha: 1)
+        cardView.layer.borderWidth = rect.width * SizeRatio.defaultBorderWidthRatio
+        cardView.layer.borderColor = BorderColor.defaultBorderColor
         return cardView
     }
     
@@ -364,6 +375,17 @@ class ViewController: UIViewController {
             self.dealCardButton.backgroundColor =  UIColor.red
             self.dealCardButton.setTitleColor(UIColor.white, for: .normal)
         }
+    }
+    private struct SizeRatio {
+        static var insetWidthRatio: CGFloat = 0.10
+        static var insetHeightRatio: CGFloat = 0.10
+        static var defaultBorderWidthRatio: CGFloat = 0.01
+        static var highlightBorderWidthRatio: CGFloat = 0.0667
+    }
+    private struct BorderColor {
+        static var defaultBorderColor: CGColor = UIColor.black.cgColor
+        static var mismatchBorderColor: CGColor = UIColor.red.cgColor
+        static var selectedBorderColor: CGColor = #colorLiteral(red: 0, green: 0.9914394021, blue: 1, alpha: 1).cgColor
     }
 }
 
