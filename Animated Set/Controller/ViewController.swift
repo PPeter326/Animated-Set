@@ -15,7 +15,9 @@ class ViewController: UIViewController {
     private var set = Set()
     
     @IBOutlet weak var playingCardsMainView: PlayingCardsMainView!
+    
     private weak var timer: Timer?
+    
     @IBOutlet weak var scoreLabel: UILabel! {
         didSet {
             scoreLabel.attributedText = updateAttributedString("SCORE: 0")
@@ -37,7 +39,8 @@ class ViewController: UIViewController {
     
     var selectedCardViews = [CardView]()
     var tempCardViews = [CardView]()
-    
+    var cellSize = CGSize()
+
     // MARK: Card Attributes
     private let colorDictionary: [Card.Color: UIColor] = [
         .color1: #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1),
@@ -71,6 +74,39 @@ class ViewController: UIViewController {
     }
     // MARK: - User Actions -
     
+    fileprivate func updateViewForMatchedCards() {
+        // matched cards animation
+        // 1. create temp card views for the matched cards
+        let lastMatchedCards = set.matchedCards.suffix(3)
+        for (index, card) in lastMatchedCards.enumerated() {
+            let tempRect = selectedCardViews[index].frame
+            let tempCardView = makeEmptyCardView(rect: tempRect)
+            do {
+                try configureCardView(cardView: tempCardView, card: card)
+                tempCardView.showMatch()
+                tempCardView.alpha = ViewTransparency.opaque
+                playingCardsMainView.addSubview(tempCardView)
+                playingCardsMainView.tempCardViews.append(tempCardView)
+                tempCardViews.append(tempCardView)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        // 2. animate temp card views frame to pile frame
+        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.2, delay: 0.1, options: [], animations: {
+            self.playingCardsMainView.tempCardViews.forEach {
+                $0.frame = self.playingCardsMainView.pileFrame
+            }
+        }, completion: { (position) in
+            // 3. remove temp card views
+            self.tempCardViews.removeAll()
+            self.playingCardsMainView.tempCardViews.forEach({ (cardView) in
+                cardView.removeFromSuperview()
+            })
+            self.playingCardsMainView.tempCardViews.removeAll()
+        })
+    }
+    
     @objc func selectCard( _ gestureRecognizer: UITapGestureRecognizer) {
         
         if gestureRecognizer.state == .ended {
@@ -97,61 +133,29 @@ class ViewController: UIViewController {
                     selectedCardViews.forEach {
                         $0.showMatch()
                     }
+                    // matched cards animation
+                    updateViewForMatchedCards()
+                    
                     if set.deck.isEmpty {
                         // If deck is empty, then the views are shifted.  There are now less card views than before (for ex 21 -> 18)
-                        // 1. first make the matched (also selected) card views disappear but keep the rest of the cards intact
-                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.1, options: [UIViewAnimationOptions.curveEaseIn], animations: {
-                                self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
-                            }, completion: { position in
-                                
-                                // remove the selected cardviews
-                                for cardView in self.selectedCardViews {
-                                    cardView.removeFromSuperview()
-                                    self.playingCardsMainView.cardViews.remove(at: self.playingCardsMainView.cardViews.index(of: cardView)!)
-                                }
-                                self.selectedCardViews.removeAll()
-                                // set the new frames and animate
-                                self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
-                                // disable dealcard button
-                                self.dealCard(disable: true)
-                            }
-                        )
-                    } else { // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
-                        // matched cards animation
-                        // 1. create temp card views for the matched cards
-                        let lastMatchedCards = set.matchedCards.suffix(3)
-                        for (index, card) in lastMatchedCards.enumerated() {
-                            let tempRect = selectedCardViews[index].frame
-                            let tempCardView = makeEmptyCardView(rect: tempRect)
-                            do {
-                                try configureCardView(cardView: tempCardView, card: card)
-                                tempCardView.showMatch()
-                                tempCardView.alpha = ViewTransparency.opaque
-                                playingCardsMainView.addSubview(tempCardView)
-                                playingCardsMainView.tempCardViews.append(tempCardView)
-                                tempCardViews.append(tempCardView)
-                            } catch {
-                                print(error.localizedDescription)
-                            }
+                        // Rearrangement: first make the matched (also selected) card views disappear but keep the rest of the cards intact
+                        self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
+                        // remove the selected cardviews
+                        for cardView in self.selectedCardViews {
+                            cardView.removeFromSuperview()
+                            self.playingCardsMainView.cardViews.remove(at: self.playingCardsMainView.cardViews.index(of: cardView)!)
                         }
-                        // 2. animate temp card views frame to pile frame
-                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.2, delay: 0.1, options: [], animations: {
-                            self.playingCardsMainView.tempCardViews.forEach {
-                                $0.frame = self.playingCardsMainView.pileFrame
-                            }
-                        }, completion: { (position) in
-                            // 3. remove temp card views
-                            self.tempCardViews.removeAll()
-                            self.playingCardsMainView.tempCardViews.forEach({ (cardView) in
-                                cardView.removeFromSuperview()
-                            })
-                            self.playingCardsMainView.tempCardViews.removeAll()
-                        })
-                        
-                        // deal card animations
-//                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
-                            self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
-//                        }, completion: nil)
+                        self.selectedCardViews.removeAll()
+                        // set the new frames and animate
+                        self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
+                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0, options: [], animations: {
+                            self.adjustCardViewsToNewFrame()
+                        }, completion: nil)
+                        // disable dealcard button
+                        self.dealCard(disable: true)
+                    } else {
+                        // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
+                        self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
                         // animate dealing cards to replace matched cards.  Not making new cardviews.
                         var delay: TimeInterval = 0
                         for (index, cardView) in self.selectedCardViews.enumerated() {
@@ -164,9 +168,8 @@ class ViewController: UIViewController {
                             assert(cardIndex == cardViewIndex, "mismatched cardview and dealt card")
                             do {
                                 // update cardview for the new dealt cards
-                              try configureCardView(cardView: cardView, card: set.dealtCards[index])
+                                try configureCardView(cardView: cardView, card: set.dealtCards[index])
                                 cardView.showNoSelection()
-                                
                                 // animate move updated cardview back to its assigned position
                                 UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
                                     cardView.frame = assignedFrame
@@ -184,7 +187,6 @@ class ViewController: UIViewController {
                     selectedCardViews.append(cardView)
                     selectedCardViews.forEach({ (cardView) in
                         cardView.showNoMatch()
-                        
                     })
                     
                     UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0.1, options: [.allowAnimatedContent], animations: {
@@ -192,15 +194,14 @@ class ViewController: UIViewController {
                             selectedCardView.transform = CGAffineTransform.identity.scaledBy(x: 1.2, y: 1.2)
                         })
                     }, completion: { (position) in
-                            self.selectedCardViews.forEach { cardView in
-                                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
-                                        cardView.transform = .identity
-                                }, completion: { position in
-                                    cardView.showNoSelection()
-                                    
-                                })
-                            }
-                            self.selectedCardViews.removeAll()
+                        self.selectedCardViews.forEach { cardView in
+                            UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
+                                cardView.transform = .identity
+                            }, completion: { position in
+                                cardView.showNoSelection()
+                            })
+                        }
+                        self.selectedCardViews.removeAll()
                     })
                 default: break
                 }
@@ -268,17 +269,13 @@ class ViewController: UIViewController {
 //        tells game to deal three cards, then display the new cards
         set.dealCards()
         showDealtCards()
-        if set.deck.count == 0 {
-            dealCard(disable: true)
-        }
+        
     }
     
     // MARK: - Helper Functions -
     
     
     fileprivate func adjustCardViewsToNewFrame() {
-        // prepare playingCardsMainView for new cardView frames
-        self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
         // reset frame for each cardview
         for (index, cardView) in self.playingCardsMainView.cardViews.enumerated() {
             guard let rect = self.playingCardsMainView.grid[index] else { return }
@@ -288,32 +285,52 @@ class ViewController: UIViewController {
     }
     
     private func showDealtCards() {
-        // Animate cardviews as they adjust to new frame
-        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
+        // prepare playingCardsMainView for new cardView frames
+        self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
+        // If the subview layout changes, animate cardviews as they adjust to new frame
+        var animationDuration: TimeInterval = 0
+        if cellSize != playingCardsMainView.grid.cellSize {
+            animationDuration = 0.7
+            cellSize = playingCardsMainView.grid.cellSize
+        }
+        dealCard(disable: true)
+        // Animate new cardviews
+        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: animationDuration, delay: 0, options: [], animations: {
             self.adjustCardViewsToNewFrame()
         }) { (position) in
-            var delay: TimeInterval = 0
-            // Only update view for new additions
+            if self.set.deck.count == 0 {
+                self.dealCard(disable: true)
+            } else {
+                self.dealCard(disable: false)
+            }
+            // Add new cardViews for dealt cards, and keep track of old card frame and card views to animate
+            var oldCardFrame = [CGRect]()
+            var cardViewsToAnimate = [CardView]()
             for dealtCard in self.set.dealtCards {
                 do {
                     // create cardView with given card position
                     let cardView = try self.makeCardView(card: dealtCard)
                     // keep track of old cardframe for animating back to its original size/position
-                    let oldCardFrame = cardView.frame
+                    oldCardFrame.append(cardView.frame)
                     // Make cardview opaquge and move to deck
                     cardView.alpha = ViewTransparency.opaque
                     cardView.frame = self.playingCardsMainView.deckFrame
-                    // animate cardView as it goes back to the frame
-                    UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
-                        self.playingCardsMainView.addSubview(cardView)
-                        self.playingCardsMainView.cardViews.append(cardView)
-                        cardView.frame = oldCardFrame
-                    }, completion: nil)
-                    // increment animation delay for the next card
-                    delay += 0.5
+                    // animate cardView as it goes back to the frame.  Enable dealcard button when done.
+                    self.playingCardsMainView.addSubview(cardView)
+                    self.playingCardsMainView.cardViews.append(cardView)
+                    cardViewsToAnimate.append(cardView)
                 } catch {
                     print("error from making cardView: \(error)")
                 }
+            }
+            
+            var delay: TimeInterval = 0
+            for (index, cardView) in cardViewsToAnimate.enumerated() {
+                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
+                    cardView.frame = oldCardFrame[index]
+                }, completion: nil)
+                // increment animation delay for the next card
+                delay += 0.5
             }
         }
     }

@@ -27,7 +27,6 @@ class PlayingCardsMainView: UIView {
         didSet {
             // recalculate grid every time number of cards are set
             grid.cellCount = numberOfCardViews
-//            layoutIfNeeded()
         }
     }
     
@@ -36,13 +35,11 @@ class PlayingCardsMainView: UIView {
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        print(#function)
         orientationChanged = true
         layoutIfNeeded()
     }
     override func layoutSubviews() {
         super.layoutSubviews()
-        print(#function)
         if orientationChanged {
             // update frame and reset orientation flag
             updateCardsFrame()
@@ -52,7 +49,6 @@ class PlayingCardsMainView: UIView {
     
     /// Update each cardView's frame with the new CGRect from grid object
     func updateCardsFrame() {
-        print(#function)
         grid.frame = self.bounds
         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [.allowAnimatedContent], animations: {
             for (index, cardView) in self.cardViews.enumerated() {

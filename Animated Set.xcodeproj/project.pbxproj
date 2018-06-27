@@ -52,7 +52,6 @@
 		F906CFA220D2E92D00C0E0AB = {
 			isa = PBXGroup;
 			children = (
-				F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */,
 				F906CFAD20D2E92D00C0E0AB /* Animated Set */,
 				F906CFAC20D2E92D00C0E0AB /* Products */,
 			);
@@ -93,6 +92,7 @@
 		F906CFCB20D2EC6000C0E0AB /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */,
 				F906CFCC20D2EC6000C0E0AB /* Card.swift */,
 				F906CFCD20D2EC6000C0E0AB /* Set.swift */,
 			);
