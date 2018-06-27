@@ -96,7 +96,6 @@ class ViewController: UIViewController {
                     selectedCardViews.append(cardView)
                     selectedCardViews.forEach {
                         $0.showMatch()
-                        
                     }
                     if set.deck.isEmpty {
                         // If deck is empty, then the views are shifted.  There are now less card views than before (for ex 21 -> 18)
@@ -150,9 +149,9 @@ class ViewController: UIViewController {
                         })
                         
                         // deal card animations
-                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
+//                        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0.2, options: [.allowAnimatedContent], animations: {
                             self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
-                        }, completion: nil)
+//                        }, completion: nil)
                         // animate dealing cards to replace matched cards.  Not making new cardviews.
                         var delay: TimeInterval = 0
                         for (index, cardView) in self.selectedCardViews.enumerated() {

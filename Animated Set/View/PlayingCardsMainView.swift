@@ -16,8 +16,12 @@ class PlayingCardsMainView: UIView {
     
     lazy var grid = Grid(layout: Grid.Layout.aspectRatio(AspectRatio.cardViewRectangle), frame: self.bounds)
 //    private weak var timer: Timer?
-    lazy var deckFrame = CGRect(x: self.frame.minX, y: self.frame.maxY, width: self.frame.width/20, height: self.frame.width/20)
-    lazy var pileFrame = CGRect(x: (self.frame.maxX - self.frame.width/20), y: self.frame.maxY, width: self.frame.width/20, height: self.frame.width/20)
+    var deckFrame: CGRect {
+        return CGRect(x: self.frame.minX, y: (self.frame.maxY - self.frame.height/20), width: self.frame.width/20, height: self.frame.height/20)
+    }
+    var pileFrame: CGRect {
+        return CGRect(x: (self.frame.maxX - self.frame.width/20), y: (self.frame.maxY - self.frame.height/20), width: self.frame.width/20, height: self.frame.height/20)
+    }
     var orientationChanged = false
     var numberOfCardViews: Int = 0 {
         didSet {
@@ -53,8 +57,8 @@ class PlayingCardsMainView: UIView {
         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [.allowAnimatedContent], animations: {
             for (index, cardView) in self.cardViews.enumerated() {
                 guard let rect = self.grid[index] else { return }
-                let newRect = rect.insetBy(dx: rect.width / 10, dy: rect.height / 10)
-                cardView.frame = newRect
+                cardView.frame = rect
+                cardView.insetFrame()
             }
         })
 
