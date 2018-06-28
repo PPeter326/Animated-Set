@@ -27,6 +27,21 @@ class PlayingCardsMainView: UIView {
         didSet {
             // recalculate grid every time number of cards are set
             grid.cellCount = numberOfCardViews
+            
+            // make empty cardViews for the additional cardViews
+            // 2. get the index range for the additional cardviews
+            var startingIndex = 0
+            if oldValue > 0 {
+                startingIndex = oldValue - 1
+            }
+            let endIndex = numberOfCardViews - 1
+            for index in startingIndex...endIndex {
+                guard let rect = grid[index] else { return }
+                let cardView = makeEmptyCardView(rect: rect)
+                addSubview(cardView)
+                cardViews.append(cardView)
+            }
+
         }
     }
     
@@ -57,10 +72,15 @@ class PlayingCardsMainView: UIView {
                 cardView.insetFrame()
             }
         })
-
-        
     }
-    
+    func makeEmptyCardView(rect: CGRect) -> CardView {
+        let cardView = CardView(frame: rect)
+        cardView.contentMode = .redraw
+        cardView.insetFrame()
+        cardView.showNoSelection()
+        cardView.alpha = 0
+        return cardView
+    }
     func reset() {
         self.cardViews.forEach{ $0.removeFromSuperview() }
         self.cardViews.removeAll()
@@ -69,5 +89,4 @@ class PlayingCardsMainView: UIView {
     
 
 }
-
 

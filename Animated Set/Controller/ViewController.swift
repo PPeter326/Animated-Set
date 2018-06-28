@@ -80,11 +80,12 @@ class ViewController: UIViewController {
         let lastMatchedCards = set.matchedCards.suffix(3)
         for (index, card) in lastMatchedCards.enumerated() {
             let tempRect = selectedCardViews[index].frame
-            let tempCardView = makeEmptyCardView(rect: tempRect)
+            let tempCardView = playingCardsMainView.makeEmptyCardView(rect: tempRect)
             do {
                 try configureCardView(cardView: tempCardView, card: card)
                 tempCardView.showMatch()
                 tempCardView.alpha = ViewTransparency.opaque
+                tempCardView.isFaceUp = true
                 playingCardsMainView.addSubview(tempCardView)
                 playingCardsMainView.tempCardViews.append(tempCardView)
                 tempCardViews.append(tempCardView)
@@ -155,31 +156,35 @@ class ViewController: UIViewController {
                         self.dealCard(disable: true)
                     } else {
                         // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
-                        self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
-                        // animate dealing cards to replace matched cards.  Not making new cardviews.
-                        var delay: TimeInterval = 0
-                        for (index, cardView) in self.selectedCardViews.enumerated() {
-                            // move the cardviews to deck
-                            let assignedFrame = cardView.frame
-                            cardView.frame = playingCardsMainView.deckFrame
-                            // double check played card and cardviews index
-                            let cardIndex = set.playedCards.index(of: set.dealtCards[index])
-                            let cardViewIndex = playingCardsMainView.cardViews.index(of: cardView)
-                            assert(cardIndex == cardViewIndex, "mismatched cardview and dealt card")
-                            do {
-                                // update cardview for the new dealt cards
-                                try configureCardView(cardView: cardView, card: set.dealtCards[index])
-                                cardView.showNoSelection()
-                                // animate move updated cardview back to its assigned position
-                                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
-                                    cardView.frame = assignedFrame
-                                    cardView.alpha = ViewTransparency.opaque
-                                }, completion: nil)
-                            } catch {
-                                print(error.localizedDescription)
-                            }
-                            delay += 0.5
-                        }
+//                        self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
+                        animateDealtCardViews()
+//                        var oldCardFrame = [CGRect]()
+//                        var cardViewsToAnimate = [CardView]()
+//                        for dealtCard in self.set.dealtCards {
+//                            guard let index = set.playedCards.index(of: dealtCard) else { return }
+//                            let cardView = playingCardsMainView.cardViews[index]
+//                            do {
+//                                try configureCardView(cardView: cardView, card: dealtCard)
+//                            } catch {
+//                                print(error.localizedDescription)
+//                            }
+//                            oldCardFrame.append(cardView.frame)
+//                            cardView.alpha = ViewTransparency.opaque
+//                            cardView.frame = self.playingCardsMainView.deckFrame
+//                            cardViewsToAnimate.append(cardView)
+//                        }
+//                        // animate dealing cards to replace matched cards.  Not making new cardviews.
+//                        var delay: TimeInterval = 0
+//                        for (index, cardView) in cardViewsToAnimate.enumerated() {
+//                            // update cardview for the new dealt cards
+//                            cardView.isFaceUp = false
+//                            cardView.showNoSelection()
+//                            // animate move updated cardview back to its assigned position
+//                            UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 2.0, delay: delay, options: [], animations: {
+//                                cardView.frame = oldCardFrame[index]
+//                            }, completion: { finished in cardView.isFaceUp = true })
+//                            delay += 0.5
+//                        }
                         // remove selectedCardViews after animation
                         selectedCardViews.removeAll()
                     }
@@ -284,6 +289,39 @@ class ViewController: UIViewController {
         }
     }
     
+    fileprivate func animateDealtCardViews() {
+        // Add new cardViews for dealt cards, and keep track of old card frame and card views to animate
+        var oldCardFrame = [CGRect]()
+        var cardViewsToAnimate = [CardView]()
+        for dealtCard in self.set.dealtCards {
+            guard let index = self.set.playedCards.index(of: dealtCard) else { return }
+            // create cardView with given card position
+            let cardView = self.playingCardsMainView.cardViews[index]
+            //                self.playingCardsMainView.addSubview(cardView)
+            //                self.playingCardsMainView.cardViews.append(cardView)
+            do {
+                try self.configureCardView(cardView: cardView, card: dealtCard)
+            } catch {
+                print("error from making cardView: \(error.localizedDescription)")
+            }
+            // keep track of old cardframe for animating back to its original size/position
+            oldCardFrame.append(cardView.frame)
+            // Make cardview opaquge and move to deck
+            cardView.alpha = ViewTransparency.opaque
+            cardView.frame = self.playingCardsMainView.deckFrame
+            cardViewsToAnimate.append(cardView)
+        }
+        
+        var delay: TimeInterval = 0
+        for (index, cardView) in cardViewsToAnimate.enumerated() {
+            UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 2.0, delay: delay, options: [], animations: {
+                cardView.frame = oldCardFrame[index]
+            }, completion: { finished in cardView.isFaceUp = true })
+            // increment animation delay for the next card
+            delay += 0.5
+        }
+    }
+    
     private func showDealtCards() {
         // prepare playingCardsMainView for new cardView frames
         self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
@@ -303,35 +341,7 @@ class ViewController: UIViewController {
             } else {
                 self.dealCard(disable: false)
             }
-            // Add new cardViews for dealt cards, and keep track of old card frame and card views to animate
-            var oldCardFrame = [CGRect]()
-            var cardViewsToAnimate = [CardView]()
-            for dealtCard in self.set.dealtCards {
-                do {
-                    // create cardView with given card position
-                    let cardView = try self.makeCardView(card: dealtCard)
-                    // keep track of old cardframe for animating back to its original size/position
-                    oldCardFrame.append(cardView.frame)
-                    // Make cardview opaquge and move to deck
-                    cardView.alpha = ViewTransparency.opaque
-                    cardView.frame = self.playingCardsMainView.deckFrame
-                    // animate cardView as it goes back to the frame.  Enable dealcard button when done.
-                    self.playingCardsMainView.addSubview(cardView)
-                    self.playingCardsMainView.cardViews.append(cardView)
-                    cardViewsToAnimate.append(cardView)
-                } catch {
-                    print("error from making cardView: \(error)")
-                }
-            }
-            
-            var delay: TimeInterval = 0
-            for (index, cardView) in cardViewsToAnimate.enumerated() {
-                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: delay, options: [], animations: {
-                    cardView.frame = oldCardFrame[index]
-                }, completion: nil)
-                // increment animation delay for the next card
-                delay += 0.5
-            }
+            self.animateDealtCardViews()
         }
     }
     
@@ -341,22 +351,8 @@ class ViewController: UIViewController {
         cardView.addGestureRecognizer(tap)
     }
     
-    /// Makes a cardview for a card in play
-    ///
-    /// - Parameters:
-    ///   - card: the card being played in the game
-    /// - Returns: A CardView displaying attributes of the card that also recognizes tap gesture.  The cardview's frame is positioned in PlayingCardsMainView's grid in the same index as the card.
-    /// - Throws: Error if index position cannot be found on the grid object of playingCardsMainView
-    private func makeCardView(card: Card) throws -> CardView {
-        guard let positionIndex = self.set.playedCards.index(of: card) else { throw CardViewGeneratorError.invalidIndex }
-        guard let rect = playingCardsMainView.grid[positionIndex] else { throw CardViewGeneratorError.invalidFrame }
-        let cardView = makeEmptyCardView(rect: rect)
-        try configureCardView(cardView: cardView, card: card)
-        addTapGesture(cardView)
-        return cardView
-    }
     
-    /// Configures a CardView to display attributes of a given card
+    /// Configures a CardView to display attributes of a given card and adds tap gesture
     ///
     /// - Parameters:
     ///   - cardView: A CardView object
@@ -371,16 +367,13 @@ class ViewController: UIViewController {
         cardView.shade = shading
         cardView.shape = shape
         cardView.numberOfShapes = numberOfShapes
+        cardView.showNoSelection()
         cardView.alpha = ViewTransparency.opaque
+        cardView.isFaceUp = false
+        addTapGesture(cardView)
     }
     
-    private func makeEmptyCardView(rect: CGRect) -> CardView {
-        let cardView = CardView(frame: rect)
-        cardView.insetFrame()
-        cardView.backgroundColor = #colorLiteral(red: 0, green: 0.5628422499, blue: 0.3188166618, alpha: 0.7835308305)
-        cardView.showNoSelection()
-        return cardView
-    }
+    
     
     private func dealCard(disable: Bool) {
         if disable {

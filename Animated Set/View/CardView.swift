@@ -13,7 +13,18 @@ class CardView: UIView {
     var numberOfShapes: Int = 3 { didSet { setNeedsDisplay() } }
     var shape: Shape = .diamond { didSet { setNeedsDisplay() } }
     var color: UIColor = #colorLiteral(red: 0.01680417731, green: 0.1983509958, blue: 1, alpha: 1)  { didSet { setNeedsDisplay() } }
-    var shade: Shade = .solid  { didSet { setNeedsDisplay( ) } }
+    var shade: Shade = .solid  { didSet { setNeedsDisplay() } }
+    var isFaceUp: Bool = true {
+        didSet {
+            if isFaceUp {
+                backgroundColor =  #colorLiteral(red: 0.2745098174, green: 0.5101637538, blue: 0.1411764771, alpha: 0.7969536493)
+            } else {
+                backgroundColor = #colorLiteral(red: 0.08967430145, green: 0.3771221638, blue: 0.6760857701, alpha: 1)
+            }
+            setNeedsDisplay()
+        }
+    }
+    
 
     enum Shape {
         case oval
@@ -28,20 +39,20 @@ class CardView: UIView {
     
     override func draw(_ rect: CGRect) {
         
-        let rects = divide(rect: self.bounds, numberOfSymbols: numberOfShapes)
-        for rect in rects {
-            if let context = UIGraphicsGetCurrentContext() {
-                context.saveGState()
-                let shapePath = createShape(rect: rect)
-                shapePath.addClip()
-                createShade(path: shapePath, rect: rect)
-                context.restoreGState()
+        if isFaceUp {
+            let rects = divide(rect: self.bounds, numberOfSymbols: numberOfShapes)
+            for rect in rects {
+                if let context = UIGraphicsGetCurrentContext() {
+                    context.saveGState()
+                    let shapePath = createShape(rect: rect)
+                    shapePath.addClip()
+                    createShade(path: shapePath, rect: rect)
+                    context.restoreGState()
+                }
             }
         }
     }
-//    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-//        setNeedsDisplay()
-//    }
+
     
     
     func showNoSelection() {
