@@ -41,7 +41,6 @@ class PlayingCardsMainView: UIView {
                 addSubview(cardView)
                 cardViews.append(cardView)
             }
-
         }
     }
     

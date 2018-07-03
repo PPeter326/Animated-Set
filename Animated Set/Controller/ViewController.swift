@@ -10,20 +10,8 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    // MARK: - UI Elements -
-    // MARK: - Game Properties -
+    // MARK: GAME
     private var set = Set()
-    
-    @IBOutlet weak var playingCardsMainView: PlayingCardsMainView!
-    
-    private weak var timer: Timer?
-    
-    @IBOutlet weak var scoreLabel: UILabel! {
-        didSet {
-            scoreLabel.attributedText = updateAttributedString("SCORE: 0")
-        }
-    }
-
     var score: Int = 0 {
         didSet {
             let scoreString = "SCORE: \(score)"
@@ -31,17 +19,34 @@ class ViewController: UIViewController {
             
         }
     }
+    
+    // MARK: VIEWS
+    @IBOutlet weak var playingCardsMainView: PlayingCardsMainView!
     @IBOutlet weak var dealCardButton: UIButton! {
         didSet {
             dealCardButton.layer.cornerRadius = 8.0
         }
     }
-    
+    @IBOutlet weak var scoreLabel: UILabel! {
+        didSet {
+            scoreLabel.attributedText = updateAttributedString("SCORE: 0")
+        }
+    }
     var selectedCardViews = [CardView]()
     var tempCardViews = [CardView]()
     var cellSize = CGSize()
 
-    // MARK: Card Attributes
+    // MARK: ANIMATION
+    private weak var timer: Timer?
+    lazy var animator = UIDynamicAnimator(referenceView: view)
+    
+    let collisionBehavior: UICollisionBehavior = {
+       let behavior = UICollisionBehavior()
+        behavior.translatesReferenceBoundsIntoBoundary = true
+        return behavior
+    }()
+
+    // MARK: CARD ATTRIBUTES
     private let colorDictionary: [Card.Color: UIColor] = [
         .color1: #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1),
         .color2: #colorLiteral(red: 0.01680417731, green: 0.1983509958, blue: 1, alpha: 1),
@@ -60,7 +65,7 @@ class ViewController: UIViewController {
         .shading3: CardView.Shade.unfilled
     ]
     
-    // MARK: - View Config -
+    // MARK: INITIAL CONFIG
     override func viewDidLoad() {
         set.startGamme()
         // show card views
@@ -71,42 +76,12 @@ class ViewController: UIViewController {
         playingCardsMainView.addGestureRecognizer(swipeDown)
         let rotate = UIRotationGestureRecognizer(target: self, action: #selector(rotateToShuffle(_:)))
         playingCardsMainView.addGestureRecognizer(rotate)
+        
+        // MARK: DYNAMIC ANIMATION - animator adds push behavior
+//        animator.addBehavior(pushBehavior)
     }
-    // MARK: - User Actions -
     
-    fileprivate func updateViewForMatchedCards() {
-        // matched cards animation
-        // 1. create temp card views for the matched cards
-        let lastMatchedCards = set.matchedCards.suffix(3)
-        for (index, card) in lastMatchedCards.enumerated() {
-            let tempRect = selectedCardViews[index].frame
-            let tempCardView = playingCardsMainView.makeEmptyCardView(rect: tempRect)
-            do {
-                try configureCardView(cardView: tempCardView, card: card)
-                tempCardView.showMatch()
-                tempCardView.alpha = ViewTransparency.opaque
-                tempCardView.isFaceUp = true
-                playingCardsMainView.addSubview(tempCardView)
-                playingCardsMainView.tempCardViews.append(tempCardView)
-                tempCardViews.append(tempCardView)
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-        // 2. animate temp card views frame to pile frame
-        UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.2, delay: 0.1, options: [], animations: {
-            self.playingCardsMainView.tempCardViews.forEach {
-                $0.frame = self.playingCardsMainView.pileFrame
-            }
-        }, completion: { (position) in
-            // 3. remove temp card views
-            self.tempCardViews.removeAll()
-            self.playingCardsMainView.tempCardViews.forEach({ (cardView) in
-                cardView.removeFromSuperview()
-            })
-            self.playingCardsMainView.tempCardViews.removeAll()
-        })
-    }
+    // MARK: - USER ACTIONS
     
     @objc func selectCard( _ gestureRecognizer: UITapGestureRecognizer) {
         
@@ -149,6 +124,7 @@ class ViewController: UIViewController {
                         self.selectedCardViews.removeAll()
                         // set the new frames and animate
                         self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
+                        // MARK: ANIMATION: adjust cards to new layout
                         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0, options: [], animations: {
                             self.adjustCardViewsToNewFrame()
                         }, completion: nil)
@@ -156,35 +132,7 @@ class ViewController: UIViewController {
                         self.dealCard(disable: true)
                     } else {
                         // if deck is not empty, number of cardviews remains the same or more.  Simply update the cardviews for cards being replaced.
-//                        self.selectedCardViews.forEach{ $0.alpha = ViewTransparency.transparent }
                         animateDealtCardViews()
-//                        var oldCardFrame = [CGRect]()
-//                        var cardViewsToAnimate = [CardView]()
-//                        for dealtCard in self.set.dealtCards {
-//                            guard let index = set.playedCards.index(of: dealtCard) else { return }
-//                            let cardView = playingCardsMainView.cardViews[index]
-//                            do {
-//                                try configureCardView(cardView: cardView, card: dealtCard)
-//                            } catch {
-//                                print(error.localizedDescription)
-//                            }
-//                            oldCardFrame.append(cardView.frame)
-//                            cardView.alpha = ViewTransparency.opaque
-//                            cardView.frame = self.playingCardsMainView.deckFrame
-//                            cardViewsToAnimate.append(cardView)
-//                        }
-//                        // animate dealing cards to replace matched cards.  Not making new cardviews.
-//                        var delay: TimeInterval = 0
-//                        for (index, cardView) in cardViewsToAnimate.enumerated() {
-//                            // update cardview for the new dealt cards
-//                            cardView.isFaceUp = false
-//                            cardView.showNoSelection()
-//                            // animate move updated cardview back to its assigned position
-//                            UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 2.0, delay: delay, options: [], animations: {
-//                                cardView.frame = oldCardFrame[index]
-//                            }, completion: { finished in cardView.isFaceUp = true })
-//                            delay += 0.5
-//                        }
                         // remove selectedCardViews after animation
                         selectedCardViews.removeAll()
                     }
@@ -193,13 +141,14 @@ class ViewController: UIViewController {
                     selectedCardViews.forEach({ (cardView) in
                         cardView.showNoMatch()
                     })
-                    
+                    // MARK: ANIMATION: make cards larger by 1.2
                     UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0.1, options: [.allowAnimatedContent], animations: {
                         self.selectedCardViews.forEach({ (selectedCardView) in
                             selectedCardView.transform = CGAffineTransform.identity.scaledBy(x: 1.2, y: 1.2)
                         })
                     }, completion: { (position) in
                         self.selectedCardViews.forEach { cardView in
+                            // MARK: ANIMATION: cards go back to original size
                             UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.7, delay: 0, options: [], animations: {
                                 cardView.transform = .identity
                             }, completion: { position in
@@ -270,15 +219,86 @@ class ViewController: UIViewController {
         return NSAttributedString(string: string, attributes: stringAttributes)
     }
     
+    
+    
+    // MARK: HELPER FUNCTIONS
     private func dealCards() {
-//        tells game to deal three cards, then display the new cards
+        //        tells game to deal three cards, then display the new cards
         set.dealCards()
         showDealtCards()
         
     }
     
-    // MARK: - Helper Functions -
-    
+    // MARK: - VIEW UPDATES
+    fileprivate func updateViewForMatchedCards() {
+        // matched cards animation
+        // 1. create temp card views for the matched cards
+        let lastMatchedCards = set.matchedCards.suffix(3)
+        for (index, card) in lastMatchedCards.enumerated() {
+            let tempRect = selectedCardViews[index].frame
+            let tempCardView = playingCardsMainView.makeEmptyCardView(rect: tempRect)
+            do {
+                try configureCardView(cardView: tempCardView, card: card)
+                tempCardView.showMatch()
+                tempCardView.alpha = ViewTransparency.opaque
+                tempCardView.isFaceUp = true
+                playingCardsMainView.addSubview(tempCardView)
+                playingCardsMainView.tempCardViews.append(tempCardView)
+                tempCardViews.append(tempCardView)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        // MARK: DYNAMIC ANIMATION: add cardview to push behavior
+        let itemBehavior = UIDynamicItemBehavior(items: tempCardViews)
+        itemBehavior.elasticity = 0.8
+        animator.addBehavior(itemBehavior)
+        animator.addBehavior(collisionBehavior)
+        tempCardViews.forEach {
+            let pushBehavior = UIPushBehavior(items: [$0], mode: .instantaneous)
+            // push behavior configuration
+            pushBehavior.magnitude = CGFloat(1.0) + CGFloat(2.0).arc4Random
+            pushBehavior.angle = (2 * CGFloat.pi).arc4Random
+            pushBehavior.active = true
+            animator.addBehavior(pushBehavior)
+            pushBehavior.action = { [unowned pushBehavior] in
+                pushBehavior.dynamicAnimator?.removeBehavior(pushBehavior)
+            }
+            // add cardviews to collision behavior
+            self.collisionBehavior.addItem($0)
+        }
+//        animator.addBehavior(pushBehavior)
+//        self.playingCardsMainView.tempCardViews.forEach { self.pushBehavior.addItem($0); self.pushBehavior.active = true }
+        // MARK: ANIMATION: 2. animate temp card views frame to pile frame
+//        UIViewPropertyAnimator.runningPropertyAnimator(
+//            withDuration: 3.0,
+//            delay: 0.1,
+//            options: [],
+//            animations: {
+//                self.animator.addBehavior(pushBehavior)
+//                self.playingCardsMainView.tempCardViews.forEach {
+//                    //                self.collisionBehavior.addItem($0)
+//                    //                self.pushBehavior.addItem($0)
+//                    //                self.pushBehavior.active = true
+//                    $0.frame = self.playingCardsMainView.pileFrame
+//                }
+//            },
+//            completion: { (position) in
+//                // 3. remove temp card views
+//                //            self.tempCardViews.forEach {
+//                //                // MARK: DYNAMIC ANIMATION: remove cardview from pushbehavior
+//                ////            self.pushBehavior.removeItem($0)
+//                ////                self.collisionBehavior.removeItem($0)
+//                //            }
+//
+//                self.tempCardViews.removeAll()
+//                self.playingCardsMainView.tempCardViews.forEach({ (cardView) in
+//                    cardView.removeFromSuperview()
+//                })
+//                self.playingCardsMainView.tempCardViews.removeAll()
+//            }
+//        )
+    }
     
     fileprivate func adjustCardViewsToNewFrame() {
         // reset frame for each cardview
@@ -297,8 +317,6 @@ class ViewController: UIViewController {
             guard let index = self.set.playedCards.index(of: dealtCard) else { return }
             // create cardView with given card position
             let cardView = self.playingCardsMainView.cardViews[index]
-            //                self.playingCardsMainView.addSubview(cardView)
-            //                self.playingCardsMainView.cardViews.append(cardView)
             do {
                 try self.configureCardView(cardView: cardView, card: dealtCard)
             } catch {
@@ -314,9 +332,15 @@ class ViewController: UIViewController {
         
         var delay: TimeInterval = 0
         for (index, cardView) in cardViewsToAnimate.enumerated() {
-            UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 2.0, delay: delay, options: [], animations: {
+            // MARK: ANIMATION: Cards from deck to position
+            UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.75, delay: delay, options: [.curveEaseOut], animations: {
                 cardView.frame = oldCardFrame[index]
-            }, completion: { finished in cardView.isFaceUp = true })
+            }, completion: { finished in
+                // MARK: ANIMATION: Card flip from back to front
+                UIView.transition(with: cardView, duration: 0.75, options: [.transitionFlipFromLeft], animations: {
+                    cardView.isFaceUp = true
+                }, completion: nil)
+            })
             // increment animation delay for the next card
             delay += 0.5
         }
@@ -332,7 +356,7 @@ class ViewController: UIViewController {
             cellSize = playingCardsMainView.grid.cellSize
         }
         dealCard(disable: true)
-        // Animate new cardviews
+        // // MARK: ANIMATION: cards adjust to new layout
         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: animationDuration, delay: 0, options: [], animations: {
             self.adjustCardViewsToNewFrame()
         }) { (position) in
@@ -345,6 +369,7 @@ class ViewController: UIViewController {
         }
     }
     
+    // MARK: SUBVIEWS CONFIGURATION
     fileprivate func addTapGesture(_ cardView: CardView) {
         let tap = UITapGestureRecognizer(target: self, action: #selector(selectCard(_:)))
         tap.numberOfTapsRequired = 1
@@ -353,7 +378,7 @@ class ViewController: UIViewController {
     
     
     /// Configures a CardView to display attributes of a given card and adds tap gesture
-    ///
+    /// Default cardview is face down
     /// - Parameters:
     ///   - cardView: A CardView object
     ///   - card: A given card
@@ -371,9 +396,8 @@ class ViewController: UIViewController {
         cardView.alpha = ViewTransparency.opaque
         cardView.isFaceUp = false
         addTapGesture(cardView)
+        
     }
-    
-    
     
     private func dealCard(disable: Bool) {
         if disable {
@@ -387,11 +411,32 @@ class ViewController: UIViewController {
         }
     }
     
+    // MARK: - DEFINED CONSTANTS
     private struct ViewTransparency {
         static let opaque: CGFloat = 1.0
         static let transparent: CGFloat = 0
     }
     
+}
+
+extension CGFloat {
+    var arc4Random: CGFloat {
+        var randomFloat: CGFloat = 0
+        if self > 0 {
+            let intNum = Int(self*100)
+            let randomInt = intNum.arc4random
+            let randomDouble = Double(randomInt)
+            randomFloat = CGFloat(randomDouble/100)
+        } else if self < 0 {
+            let positiveInt = Int(abs(self*100))
+            let randomPositiveInt = positiveInt.arc4random
+            let randomDouble = Double(randomPositiveInt)
+            randomFloat = CGFloat(randomDouble/100)
+        } else {
+            randomFloat = 0
+        }
+        return randomFloat
+    }
 }
 
 

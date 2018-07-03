@@ -148,7 +148,6 @@ class CardView: UIView {
         path.move(to: CGPoint(x: rect.origin.x + quadControlPointLength, y: rect.origin.y + quadControlPointLength * 2))
         path.addCurve(to: CGPoint(x: rect.maxX - quadControlPointLength, y: rect.origin.y + quadControlPointLength * 2), controlPoint1: CGPoint(x: rect.origin.x + rect.width / 3, y: rect.origin.y), controlPoint2: CGPoint(x: rect.maxX - rect.width / 3, y: rect.maxY - rect.height / 6))
         path.addQuadCurve(to: CGPoint(x: rect.maxX - quadControlPointLength, y: rect.maxY - quadControlPointLength), controlPoint: CGPoint(x: rect.maxX, y: rect.midY))
-        //        path.move(to: CGPoint(x: rect.maxX - quadControlPointLength, y: rect.maxY - quadControlPointLength))
         path.addCurve(to: CGPoint(x: rect.origin.x + quadControlPointLength, y: rect.maxY - quadControlPointLength), controlPoint1: CGPoint(x: rect.maxX - rect.width / 3, y: rect.maxY), controlPoint2: CGPoint(x: rect.midX - quadControlPointLength, y: rect.origin.y + rect.height / 3))
         path.addQuadCurve(to: CGPoint(x: rect.origin.x + quadControlPointLength, y: rect.origin.y + quadControlPointLength * 2), controlPoint: CGPoint(x: rect.origin.x, y: rect.midY + quadControlPointLength))
         path.lineJoinStyle = .round
