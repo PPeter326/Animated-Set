@@ -33,12 +33,12 @@ class ViewController: UIViewController {
         }
     }
     var selectedCardViews = [CardView]()
-    var tempCardViews = [CardView]()
+//    var tempCardViews = [CardView]()
     var cellSize = CGSize()
 
     // MARK: ANIMATION
     private weak var timer: Timer?
-    lazy var animator = UIDynamicAnimator(referenceView: view)
+    lazy var animator = UIDynamicAnimator(referenceView: self.playingCardsMainView)
     
     let collisionBehavior: UICollisionBehavior = {
        let behavior = UICollisionBehavior()
@@ -230,75 +230,72 @@ class ViewController: UIViewController {
     }
     
     // MARK: - VIEW UPDATES
-    fileprivate func updateViewForMatchedCards() {
-        // matched cards animation
-        // 1. create temp card views for the matched cards
-        let lastMatchedCards = set.matchedCards.suffix(3)
-        for (index, card) in lastMatchedCards.enumerated() {
-            let tempRect = selectedCardViews[index].frame
-            let tempCardView = playingCardsMainView.makeEmptyCardView(rect: tempRect)
-            do {
-                try configureCardView(cardView: tempCardView, card: card)
-                tempCardView.showMatch()
-                tempCardView.alpha = ViewTransparency.opaque
-                tempCardView.isFaceUp = true
-                playingCardsMainView.addSubview(tempCardView)
-                playingCardsMainView.tempCardViews.append(tempCardView)
-                tempCardViews.append(tempCardView)
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-        // MARK: DYNAMIC ANIMATION: add cardview to push behavior
-        let itemBehavior = UIDynamicItemBehavior(items: tempCardViews)
-        itemBehavior.elasticity = 0.8
-        animator.addBehavior(itemBehavior)
-        animator.addBehavior(collisionBehavior)
-        tempCardViews.forEach {
-            let pushBehavior = UIPushBehavior(items: [$0], mode: .instantaneous)
-            // push behavior configuration
-            pushBehavior.magnitude = CGFloat(1.0) + CGFloat(2.0).arc4Random
-            pushBehavior.angle = (2 * CGFloat.pi).arc4Random
-            pushBehavior.active = true
-            animator.addBehavior(pushBehavior)
-            pushBehavior.action = { [unowned pushBehavior] in
-                pushBehavior.dynamicAnimator?.removeBehavior(pushBehavior)
-            }
-            // add cardviews to collision behavior
-            self.collisionBehavior.addItem($0)
-        }
-//        animator.addBehavior(pushBehavior)
-//        self.playingCardsMainView.tempCardViews.forEach { self.pushBehavior.addItem($0); self.pushBehavior.active = true }
-        // MARK: ANIMATION: 2. animate temp card views frame to pile frame
-//        UIViewPropertyAnimator.runningPropertyAnimator(
-//            withDuration: 3.0,
-//            delay: 0.1,
-//            options: [],
-//            animations: {
-//                self.animator.addBehavior(pushBehavior)
-//                self.playingCardsMainView.tempCardViews.forEach {
-//                    //                self.collisionBehavior.addItem($0)
-//                    //                self.pushBehavior.addItem($0)
-//                    //                self.pushBehavior.active = true
-//                    $0.frame = self.playingCardsMainView.pileFrame
-//                }
-//            },
-//            completion: { (position) in
-//                // 3. remove temp card views
-//                //            self.tempCardViews.forEach {
-//                //                // MARK: DYNAMIC ANIMATION: remove cardview from pushbehavior
-//                ////            self.pushBehavior.removeItem($0)
-//                ////                self.collisionBehavior.removeItem($0)
-//                //            }
-//
-//                self.tempCardViews.removeAll()
-//                self.playingCardsMainView.tempCardViews.forEach({ (cardView) in
-//                    cardView.removeFromSuperview()
-//                })
-//                self.playingCardsMainView.tempCardViews.removeAll()
-//            }
-//        )
-    }
+	fileprivate func updateViewForMatchedCards() {
+		// matched cards animation
+		// 1. create temp card views for the matched cards
+		let lastMatchedCards = set.matchedCards.suffix(3)
+		for (index, card) in lastMatchedCards.enumerated() {
+			let tempRect = selectedCardViews[index].frame
+			let tempCardView = playingCardsMainView.makeEmptyCardView(rect: tempRect)
+			do {
+				try configureCardView(cardView: tempCardView, card: card)
+				tempCardView.showMatch()
+				tempCardView.alpha = ViewTransparency.opaque
+				tempCardView.isFaceUp = true
+				playingCardsMainView.addSubview(tempCardView)
+				playingCardsMainView.tempCardViews.append(tempCardView)
+//				tempCardViews.append(tempCardView)
+			} catch {
+				print(error.localizedDescription)
+			}
+		}
+		// MARK: DYNAMIC ANIMATION: add cardview to push and collision behavior
+		let itemBehavior = UIDynamicItemBehavior(items: playingCardsMainView.tempCardViews)
+		itemBehavior.elasticity = 0.8
+		animator.addBehavior(itemBehavior)
+		animator.addBehavior(collisionBehavior)
+		self.playingCardsMainView.tempCardViews.forEach {
+			let pushBehavior = UIPushBehavior(items: [$0], mode: .instantaneous)
+			// push behavior configuration
+			pushBehavior.magnitude = CGFloat(3.0) + CGFloat(2.0).arc4Random
+			pushBehavior.angle = CGFloat.pi + CGFloat.pi.arc4Random
+			pushBehavior.active = true
+			animator.addBehavior(pushBehavior)
+			// remove instantaneous push behavior once it's acted
+			pushBehavior.action = { [unowned pushBehavior] in
+				pushBehavior.dynamicAnimator?.removeBehavior(pushBehavior)
+			}
+			// add cardviews to collision behavior
+			self.collisionBehavior.addItem($0)
+		}
+		timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { timer in
+			self.playingCardsMainView.tempCardViews.forEach {
+				// MARK: DYNAMIC ANIMATION: remove items from behaviors
+				self.collisionBehavior.removeItem($0)
+				itemBehavior.removeItem($0)
+			}
+			UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 3.0, delay: 0.1, options: [], animations: {
+				// MARK: ANIMATION: animate temp card views frame to pile frame
+				self.playingCardsMainView.tempCardViews.forEach {
+					$0.showNoSelection()
+					$0.transform = CGAffineTransform.identity
+					$0.frame = self.playingCardsMainView.pileFrame
+				}
+			}, completion: { (position) in
+				self.playingCardsMainView.tempCardViews.forEach { tempCardView in
+					// MARK: ANIMATION: flip card to the back
+					UIView.transition(with: tempCardView, duration: 0.5, options: [.transitionFlipFromLeft], animations: {
+						tempCardView.isFaceUp = false
+					}, completion: { (finished) in
+						// clean up and remove temp card views from superview
+//						self.tempCardViews.remove(at: self.tempCardViews.index(of: tempCardView)!)
+						tempCardView.removeFromSuperview()
+						self.playingCardsMainView.tempCardViews.remove(at: self.playingCardsMainView.tempCardViews.index(of: tempCardView)!)
+					})
+				}
+			})
+		}
+	}
     
     fileprivate func adjustCardViewsToNewFrame() {
         // reset frame for each cardview
