@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     // MARK: GAME
     private var set = Set()
@@ -77,6 +77,8 @@ class ViewController: UIViewController {
         let rotate = UIRotationGestureRecognizer(target: self, action: #selector(rotateToShuffle(_:)))
         playingCardsMainView.addGestureRecognizer(rotate)
         
+        // set delegate for animator
+        animator.delegate = self
         // MARK: DYNAMIC ANIMATION - animator adds push behavior
 //        animator.addBehavior(pushBehavior)
     }
@@ -269,33 +271,39 @@ class ViewController: UIViewController {
 			self.collisionBehavior.addItem($0)
 		}
 		timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { timer in
-			self.playingCardsMainView.tempCardViews.forEach {
-				// MARK: DYNAMIC ANIMATION: remove items from behaviors
-				self.collisionBehavior.removeItem($0)
-				itemBehavior.removeItem($0)
-			}
-			UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 3.0, delay: 0.1, options: [], animations: {
-				// MARK: ANIMATION: animate temp card views frame to pile frame
-				self.playingCardsMainView.tempCardViews.forEach {
-					$0.showNoSelection()
-					$0.transform = CGAffineTransform.identity
-					$0.frame = self.playingCardsMainView.pileFrame
-				}
-			}, completion: { (position) in
-				self.playingCardsMainView.tempCardViews.forEach { tempCardView in
-					// MARK: ANIMATION: flip card to the back
-					UIView.transition(with: tempCardView, duration: 0.5, options: [.transitionFlipFromLeft], animations: {
-						tempCardView.isFaceUp = false
-					}, completion: { (finished) in
-						// clean up and remove temp card views from superview
-//						self.tempCardViews.remove(at: self.tempCardViews.index(of: tempCardView)!)
-						tempCardView.removeFromSuperview()
-						self.playingCardsMainView.tempCardViews.remove(at: self.playingCardsMainView.tempCardViews.index(of: tempCardView)!)
-					})
-				}
-			})
+            
+            // MARK: DYNAMIC ANIMATION: set timer for 2 seconds before "snapping" the cards to the pile
+            self.playingCardsMainView.tempCardViews.forEach {
+                let snap = UISnapBehavior(item: $0, snapTo: self.playingCardsMainView.pileFrame.origin)
+                // more damping than default
+                snap.damping = 0.4
+                self.animator.addBehavior(snap)
+                
+            }
+            self.playingCardsMainView.tempCardViews.forEach {
+                // MARK: DYNAMIC ANIMATION: remove items from behaviors
+                self.collisionBehavior.removeItem($0)
+                $0.showNoSelection()
+            }
 		}
 	}
+    
+    func dynamicAnimatorDidPause(_ animator: UIDynamicAnimator) {
+        // MARK: ANIMATION: Flip cardviews when cardviews are snapped to the pile
+        // 1. Ask Animator delegate(?) when snapbehavior is done
+        // 2. animate flip cardviews to face down
+        playingCardsMainView.tempCardViews.forEach { tempCardView in
+            UIView.transition(with: tempCardView, duration: 0.5, options: [.transitionFlipFromLeft], animations: {
+                tempCardView.isFaceUp = false
+            }, completion: { (finished) in
+                // clean up and remove temp card views from superview
+                tempCardView.removeFromSuperview()
+                self.playingCardsMainView.tempCardViews.remove(at: self.playingCardsMainView.tempCardViews.index(of: tempCardView)!)
+                // remove all behaviors from animator
+                animator.removeAllBehaviors()
+            })
+        }
+    }
     
     fileprivate func adjustCardViewsToNewFrame() {
         // reset frame for each cardview
