@@ -22,11 +22,23 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     // MARK: VIEWS
     @IBOutlet weak var playingCardsMainView: PlayingCardsMainView!
-    @IBOutlet weak var dealCardButton: UIButton! {
-        didSet {
-            dealCardButton.layer.cornerRadius = 8.0
-        }
+   
+    
+    @IBOutlet weak var deckButton: UIButton!
+    var deckFrameInPlayingCardsMV: CGRect {
+      return bottomStack.convert(deckButton.frame, to: playingCardsMainView)
     }
+    @IBOutlet weak var bottomStack: UIStackView!
+    @IBOutlet weak var rightContentView: UIView!
+    
+    @IBOutlet weak var setPileLabel: UILabel!
+    var setPileCenterInPlayingCardsMV: CGPoint {
+        return rightContentView.convert(CGPoint(x: setPileLabel.frame.midX, y: setPileLabel.frame.midY), to: playingCardsMainView)
+    }
+//    var setOriginInPlayingCardsMV: CGPoint {
+//        return rightContentView.convert(setPileLabel.frame.origin, to: playingCardsMainView)
+//    }
+    
     @IBOutlet weak var scoreLabel: UILabel! {
         didSet {
             scoreLabel.attributedText = updateAttributedString("SCORE: 0")
@@ -37,8 +49,8 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     var cellSize = CGSize()
 
     // MARK: ANIMATION
-    private weak var timer: Timer?
     lazy var animator = UIDynamicAnimator(referenceView: self.playingCardsMainView)
+    private weak var timer: Timer?
     
     let collisionBehavior: UICollisionBehavior = {
        let behavior = UICollisionBehavior()
@@ -85,6 +97,9 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     // MARK: - USER ACTIONS
     
+    @IBAction func dealCard(_ sender: UIButton) {
+        dealCards()
+    }
     @objc func selectCard( _ gestureRecognizer: UITapGestureRecognizer) {
         
         if gestureRecognizer.state == .ended {
@@ -181,9 +196,7 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         
     }
     
-    @IBAction func dealCardButtonTouched(_ sender: UIButton) {
-        dealCards()
-    }
+    
     
     @objc func swipeDownToDeal(_ gestureRecognizer: UIGestureRecognizer) {
         if gestureRecognizer.state == .ended {
@@ -273,18 +286,27 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 		timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { timer in
             
             // MARK: DYNAMIC ANIMATION: set timer for 2 seconds before "snapping" the cards to the pile
-            self.playingCardsMainView.tempCardViews.forEach {
-                let snap = UISnapBehavior(item: $0, snapTo: self.playingCardsMainView.pileFrame.origin)
+            self.playingCardsMainView.tempCardViews.forEach { cardView in
+                let snap = UISnapBehavior(item: cardView, snapTo: self.setPileCenterInPlayingCardsMV)
                 // more damping than default
                 snap.damping = 0.4
                 self.animator.addBehavior(snap)
                 
-            }
-            self.playingCardsMainView.tempCardViews.forEach {
+                // bring each temp cardviews to front so they cover the set pile label
+                self.view.insertSubview(cardView, aboveSubview: self.setPileLabel)
+                
                 // MARK: DYNAMIC ANIMATION: remove items from behaviors
-                self.collisionBehavior.removeItem($0)
-                $0.showNoSelection()
+                self.collisionBehavior.removeItem(cardView)
+                cardView.showNoSelection()
+                
+                // MARK: ANIMATION: change height and width of set cards to match the set pile
+                UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.3, delay: 0, options: [], animations: {
+                    
+                    cardView.bounds = self.setPileLabel.bounds
+//                    cardView.frame.height = setPileLabel.frame.height
+                }, completion: nil)
             }
+            
 		}
 	}
     
@@ -331,7 +353,9 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
             oldCardFrame.append(cardView.frame)
             // Make cardview opaquge and move to deck
             cardView.alpha = ViewTransparency.opaque
-            cardView.frame = self.playingCardsMainView.deckFrame
+            // get deckButton's frame in playingcardsmainview's coordinate system
+            
+            cardView.frame = deckFrameInPlayingCardsMV
             cardViewsToAnimate.append(cardView)
         }
         
@@ -406,13 +430,13 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     private func dealCard(disable: Bool) {
         if disable {
-            self.dealCardButton.isEnabled = false
-            self.dealCardButton.backgroundColor =  UIColor.gray
-            self.dealCardButton.setTitleColor(UIColor.black, for: .normal)
+            self.deckButton.isEnabled = false
+            self.deckButton.backgroundColor =  UIColor.gray
+            self.deckButton.setTitleColor(UIColor.black, for: .normal)
         } else {
-            self.dealCardButton.isEnabled = true
-            self.dealCardButton.backgroundColor =  UIColor.red
-            self.dealCardButton.setTitleColor(UIColor.white, for: .normal)
+            self.deckButton.isEnabled = true
+            self.deckButton.backgroundColor =  #colorLiteral(red: 0.08967430145, green: 0.3771221638, blue: 0.6760857701, alpha: 1)
+            self.deckButton.setTitleColor(UIColor.white, for: .normal)
         }
     }
     

@@ -17,7 +17,7 @@ class CardView: UIView {
     var isFaceUp: Bool = true {
         didSet {
             if isFaceUp {
-                backgroundColor =  #colorLiteral(red: 0.2745098174, green: 0.5101637538, blue: 0.1411764771, alpha: 0.7969536493)
+                backgroundColor =  #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
             } else {
                 backgroundColor = #colorLiteral(red: 0.08967430145, green: 0.3771221638, blue: 0.6760857701, alpha: 1)
             }
@@ -25,7 +25,9 @@ class CardView: UIView {
         }
     }
     
-
+    var lineWidth: CGFloat = 0
+    
+    
     enum Shape {
         case oval
         case squiggle
@@ -87,6 +89,7 @@ class CardView: UIView {
         if ratio >= 1.0 { // width > height: horizontal
             let width = rect.size.width / 3.0
             let height = width / 8 * 5
+            lineWidth = self.frame.size.height / 80
             var rectOrigin = CGPoint(x: rect.midX - width * CGFloat(numberOfSymbols) * 1 / 2, y: rect.midY - height / 2)
             let size = CGSize(width: width, height: height)
             for _  in 1...numberOfSymbols {
@@ -97,6 +100,7 @@ class CardView: UIView {
         } else { // height > width: vertical
             let height = rect.size.height / 3.0
             let width = height / 5 * 8
+            lineWidth = self.frame.size.width / 30
             let size = CGSize(width: width, height: height)
             var rectOrigin = CGPoint(x: rect.midX - width / 2, y: rect.midY - height * CGFloat(numberOfSymbols) * 1 / 2)
             for _  in 1...numberOfSymbols {
@@ -110,7 +114,7 @@ class CardView: UIView {
     
     private func createShape(rect: CGRect) -> UIBezierPath {
         let path = UIBezierPath()
-        path.lineWidth = self.frame.size.width / 30
+        path.lineWidth = lineWidth
         switch shape {
             case .diamond: createDiamondShape(path: path, rect: rect, color: self.color)
             case .oval: createOvalShape(path: path, rect: rect, color: self.color)

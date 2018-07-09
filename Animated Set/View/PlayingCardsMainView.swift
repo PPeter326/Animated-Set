@@ -10,18 +10,12 @@ import UIKit
 
 class PlayingCardsMainView: UIView {
     
-    private struct AspectRatio {
+    struct AspectRatio {
         static let cardViewRectangle: CGFloat = 5.0 / 8.0
     }
     
     lazy var grid = Grid(layout: Grid.Layout.aspectRatio(AspectRatio.cardViewRectangle), frame: self.bounds)
-//    private weak var timer: Timer?
-    var deckFrame: CGRect {
-        return CGRect(x: self.frame.minX, y: (self.frame.maxY - self.frame.height/20), width: self.frame.width/20, height: self.frame.height/20)
-    }
-    var pileFrame: CGRect {
-        return CGRect(x: (self.frame.maxX - self.frame.width/20), y: (self.frame.maxY - self.frame.height/20), width: self.frame.width/20, height: self.frame.height/20)
-    }
+    
     var orientationChanged = false
     var numberOfCardViews: Int = 0 {
         didSet {

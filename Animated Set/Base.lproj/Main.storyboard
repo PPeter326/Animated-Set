@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina5_5" orientation="portrait">
+    <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -17,17 +17,17 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Animated_Set" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="6AI-cu-fh1">
-                                <rect key="frame" x="16" y="36" width="382" height="684"/>
+                                <rect key="frame" x="16" y="60" width="343" height="702"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="wcz-mW-EXj">
-                                        <rect key="frame" x="0.0" y="0.0" width="382" height="19"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="wcz-mW-EXj" userLabel="Top Stack">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="17"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score: " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ytd-vy-xxc">
-                                                <rect key="frame" x="0.0" y="0.0" width="191" height="19"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="171.66666666666666" height="17"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="ytd-vy-xxc" secondAttribute="height" multiplier="100:10" id="Tax-pF-ZEi"/>
                                                 </constraints>
@@ -36,7 +36,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dep-vr-LtP">
-                                                <rect key="frame" x="191" y="0.0" width="191" height="19"/>
+                                                <rect key="frame" x="171.66666666666663" y="0.0" width="171.33333333333337" height="17"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                                 <size key="titleShadowOffset" width="3" height="3"/>
                                                 <state key="normal" title="NEW GAME">
@@ -49,36 +49,73 @@
                                         </subviews>
                                     </stackView>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e7L-Nl-86x" userLabel="PlayingCardsView" customClass="PlayingCardsMainView" customModule="Animated_Set" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="27" width="382" height="619"/>
-                                        <color key="backgroundColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <rect key="frame" x="0.0" y="25" width="343" height="619"/>
                                     </view>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tTR-ZA-oLL">
-                                        <rect key="frame" x="115.66666666666666" y="654" width="150.99999999999997" height="30"/>
-                                        <color key="backgroundColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="70" id="iFT-3g-Toq"/>
-                                            <constraint firstAttribute="height" constant="30" id="tvy-Jz-Ryn"/>
-                                        </constraints>
-                                        <state key="normal" title="DEAL 3 MORE CARDS">
-                                            <color key="titleColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="dealCardButtonTouched:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ZJS-P3-LBe"/>
-                                        </connections>
-                                    </button>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ytG-Rb-2K0" userLabel="Bottom Stack">
+                                        <rect key="frame" x="0.0" y="652" width="343" height="50"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HJ9-2Y-aQm" userLabel="L Content View">
+                                                <rect key="frame" x="0.0" y="0.0" width="167.66666666666666" height="50"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ter-QG-7ZE">
+                                                        <rect key="frame" x="44.000000000000007" y="0.0" width="79.666666666666686" height="50"/>
+                                                        <color key="backgroundColor" red="0.089674301449999994" green="0.37712216380000002" blue="0.67608577010000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="ter-QG-7ZE" secondAttribute="height" multiplier="8:5" id="DOY-BB-m4C"/>
+                                                        </constraints>
+                                                        <state key="normal" title="Deal">
+                                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="dealCard:" destination="BYZ-38-t0r" eventType="touchUpInside" id="pQl-mE-YxK"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstAttribute="bottom" secondItem="ter-QG-7ZE" secondAttribute="bottom" id="T8s-hJ-Dt8"/>
+                                                    <constraint firstItem="ter-QG-7ZE" firstAttribute="top" secondItem="HJ9-2Y-aQm" secondAttribute="top" id="awA-87-sbl"/>
+                                                    <constraint firstItem="ter-QG-7ZE" firstAttribute="centerY" secondItem="HJ9-2Y-aQm" secondAttribute="centerY" id="tFp-YG-zcB"/>
+                                                    <constraint firstItem="ter-QG-7ZE" firstAttribute="centerX" secondItem="HJ9-2Y-aQm" secondAttribute="centerX" id="y9I-7V-eTY"/>
+                                                </constraints>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5aF-po-h5L" userLabel="R Content View">
+                                                <rect key="frame" x="175.66666666666663" y="0.0" width="167.33333333333337" height="50"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sets" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YtE-2Y-hJ5">
+                                                        <rect key="frame" x="43.666666666666693" y="0.0" width="79.666666666666686" height="50"/>
+                                                        <color key="backgroundColor" red="0.089674301449999994" green="0.37712216380000002" blue="0.67608577010000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="YtE-2Y-hJ5" secondAttribute="height" multiplier="8:5" id="Qpa-qI-7qs"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstItem="YtE-2Y-hJ5" firstAttribute="centerY" secondItem="5aF-po-h5L" secondAttribute="centerY" id="616-mk-Fvf"/>
+                                                    <constraint firstAttribute="bottom" secondItem="YtE-2Y-hJ5" secondAttribute="bottom" id="K5P-vs-MuI"/>
+                                                    <constraint firstItem="YtE-2Y-hJ5" firstAttribute="centerX" secondItem="5aF-po-h5L" secondAttribute="centerX" id="k44-e2-rXd"/>
+                                                    <constraint firstItem="YtE-2Y-hJ5" firstAttribute="top" secondItem="5aF-po-h5L" secondAttribute="top" id="kB8-5Y-ScJ"/>
+                                                </constraints>
+                                            </view>
+                                        </subviews>
+                                    </stackView>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="e7L-Nl-86x" secondAttribute="trailing" id="DWO-Kq-gaZ"/>
+                                    <constraint firstItem="ytG-Rb-2K0" firstAttribute="leading" secondItem="6AI-cu-fh1" secondAttribute="leading" id="EJ3-Hv-9Lj"/>
                                     <constraint firstItem="e7L-Nl-86x" firstAttribute="leading" secondItem="6AI-cu-fh1" secondAttribute="leading" id="ERV-Al-vGh"/>
+                                    <constraint firstAttribute="bottom" secondItem="ytG-Rb-2K0" secondAttribute="bottom" id="OGQ-Sz-jrU"/>
                                     <constraint firstItem="wcz-mW-EXj" firstAttribute="top" secondItem="6AI-cu-fh1" secondAttribute="top" id="bRj-Sb-MZ1"/>
+                                    <constraint firstAttribute="trailing" secondItem="ytG-Rb-2K0" secondAttribute="trailing" id="grc-NT-iqX"/>
                                     <constraint firstAttribute="trailing" secondItem="wcz-mW-EXj" secondAttribute="trailing" id="k2Z-xb-Rh5"/>
                                     <constraint firstItem="e7L-Nl-86x" firstAttribute="top" secondItem="wcz-mW-EXj" secondAttribute="bottom" constant="8" id="wuT-Nf-5eb"/>
-                                    <constraint firstItem="tTR-ZA-oLL" firstAttribute="top" secondItem="e7L-Nl-86x" secondAttribute="bottom" constant="8" id="yTr-dl-SwQ"/>
                                     <constraint firstItem="wcz-mW-EXj" firstAttribute="leading" secondItem="6AI-cu-fh1" secondAttribute="leading" id="zSl-9V-eoK"/>
                                 </constraints>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" red="3.2187440979999998e-07" green="0.63529413940000001" blue="0.99999994039999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.40151616029454207" green="0.57770859771573591" blue="0.32334110552433876" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="6AI-cu-fh1" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="5eQ-ig-ADx"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="6AI-cu-fh1" secondAttribute="bottom" constant="16" id="LbB-Dd-aUe"/>
@@ -88,14 +125,17 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
-                        <outlet property="dealCardButton" destination="tTR-ZA-oLL" id="qvr-sS-05k"/>
+                        <outlet property="bottomStack" destination="ytG-Rb-2K0" id="bEh-m1-57d"/>
+                        <outlet property="deckButton" destination="ter-QG-7ZE" id="9VR-rc-TzJ"/>
                         <outlet property="playingCardsMainView" destination="e7L-Nl-86x" id="94f-lN-T4G"/>
+                        <outlet property="rightContentView" destination="5aF-po-h5L" id="EKL-cb-EDC"/>
                         <outlet property="scoreLabel" destination="ytd-vy-xxc" id="3ej-nb-d6x"/>
+                        <outlet property="setPileLabel" destination="YtE-2Y-hJ5" id="TuG-rC-lVo"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-797" y="24"/>
+            <point key="canvasLocation" x="-797.60000000000002" y="23.645320197044335"/>
         </scene>
     </scenes>
 </document>
