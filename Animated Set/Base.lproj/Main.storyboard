@@ -20,24 +20,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="6AI-cu-fh1">
+                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="6AI-cu-fh1">
                                 <rect key="frame" x="16" y="60" width="343" height="702"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="wcz-mW-EXj" userLabel="Top Stack">
-                                        <rect key="frame" x="0.0" y="0.0" width="343" height="17"/>
+                                    <stackView opaque="NO" contentMode="scaleAspectFit" distribution="fillEqually" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="wcz-mW-EXj" userLabel="Top Stack">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="32"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score: " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ytd-vy-xxc">
-                                                <rect key="frame" x="0.0" y="0.0" width="171.66666666666666" height="17"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" secondItem="ytd-vy-xxc" secondAttribute="height" multiplier="100:10" id="Tax-pF-ZEi"/>
-                                                </constraints>
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SCORE: 0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ytd-vy-xxc">
+                                                <rect key="frame" x="0.0" y="0.0" width="167.66666666666666" height="32"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dep-vr-LtP">
-                                                <rect key="frame" x="171.66666666666663" y="0.0" width="171.33333333333337" height="17"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                                <rect key="frame" x="175.66666666666663" y="0.0" width="167.33333333333337" height="32"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
                                                 <size key="titleShadowOffset" width="3" height="3"/>
                                                 <state key="normal" title="NEW GAME">
                                                     <color key="titleColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -49,7 +46,7 @@
                                         </subviews>
                                     </stackView>
                                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e7L-Nl-86x" userLabel="PlayingCardsView" customClass="PlayingCardsMainView" customModule="Animated_Set" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="25" width="343" height="619"/>
+                                        <rect key="frame" x="0.0" y="40" width="343" height="604"/>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ytG-Rb-2K0" userLabel="Bottom Stack">
                                         <rect key="frame" x="0.0" y="652" width="343" height="50"/>
@@ -58,7 +55,7 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="167.66666666666666" height="50"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ter-QG-7ZE">
-                                                        <rect key="frame" x="44.000000000000007" y="0.0" width="79.666666666666686" height="50"/>
+                                                        <rect key="frame" x="43.666666666666657" y="0.0" width="80" height="50"/>
                                                         <color key="backgroundColor" red="0.089674301449999994" green="0.37712216380000002" blue="0.67608577010000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="ter-QG-7ZE" secondAttribute="height" multiplier="8:5" id="DOY-BB-m4C"/>
@@ -81,8 +78,8 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5aF-po-h5L" userLabel="R Content View">
                                                 <rect key="frame" x="175.66666666666663" y="0.0" width="167.33333333333337" height="50"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sets" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YtE-2Y-hJ5">
-                                                        <rect key="frame" x="43.666666666666693" y="0.0" width="79.666666666666686" height="50"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0 Sets" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YtE-2Y-hJ5">
+                                                        <rect key="frame" x="43.333333333333343" y="0.0" width="80" height="50"/>
                                                         <color key="backgroundColor" red="0.089674301449999994" green="0.37712216380000002" blue="0.67608577010000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="YtE-2Y-hJ5" secondAttribute="height" multiplier="8:5" id="Qpa-qI-7qs"/>
@@ -127,6 +124,7 @@
                     <connections>
                         <outlet property="bottomStack" destination="ytG-Rb-2K0" id="bEh-m1-57d"/>
                         <outlet property="deckButton" destination="ter-QG-7ZE" id="9VR-rc-TzJ"/>
+                        <outlet property="newGameButton" destination="dep-vr-LtP" id="Ua8-Kl-Aq9"/>
                         <outlet property="playingCardsMainView" destination="e7L-Nl-86x" id="94f-lN-T4G"/>
                         <outlet property="rightContentView" destination="5aF-po-h5L" id="EKL-cb-EDC"/>
                         <outlet property="scoreLabel" destination="ytd-vy-xxc" id="3ej-nb-d6x"/>

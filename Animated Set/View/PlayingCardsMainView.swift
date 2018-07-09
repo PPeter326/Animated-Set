@@ -24,16 +24,18 @@ class PlayingCardsMainView: UIView {
             
             // make empty cardViews for the additional cardViews
             // 2. get the index range for the additional cardviews
-            var startingIndex = 0
-            if oldValue > 0 {
-                startingIndex = oldValue - 1
-            }
-            let endIndex = numberOfCardViews - 1
-            for index in startingIndex...endIndex {
-                guard let rect = grid[index] else { return }
-                let cardView = makeEmptyCardView(rect: rect)
-                addSubview(cardView)
-                cardViews.append(cardView)
+            if numberOfCardViews > 0 {
+                var startingIndex = 0
+                if oldValue > 0 {
+                    startingIndex = oldValue - 1
+                }
+                let endIndex = numberOfCardViews - 1
+                for index in startingIndex...endIndex {
+                    guard let rect = grid[index] else { return }
+                    let cardView = makeEmptyCardView(rect: rect)
+                    addSubview(cardView)
+                    cardViews.append(cardView)
+                }
             }
         }
     }

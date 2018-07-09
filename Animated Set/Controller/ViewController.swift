@@ -12,13 +12,7 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     // MARK: GAME
     private var set = Set()
-    var score: Int = 0 {
-        didSet {
-            let scoreString = "SCORE: \(score)"
-            scoreLabel.attributedText = updateAttributedString(scoreString)
-            
-        }
-    }
+    
     
     // MARK: VIEWS
     @IBOutlet weak var playingCardsMainView: PlayingCardsMainView!
@@ -28,6 +22,9 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     var deckFrameInPlayingCardsMV: CGRect {
       return bottomStack.convert(deckButton.frame, to: playingCardsMainView)
     }
+    
+ 
+   
     @IBOutlet weak var bottomStack: UIStackView!
     @IBOutlet weak var rightContentView: UIView!
     
@@ -39,9 +36,17 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 //        return rightContentView.convert(setPileLabel.frame.origin, to: playingCardsMainView)
 //    }
     
-    @IBOutlet weak var scoreLabel: UILabel! {
+    @IBOutlet weak var newGameButton: UIButton! {
         didSet {
-            scoreLabel.attributedText = updateAttributedString("SCORE: 0")
+            newGameButton.setTitle("NEW GAME", for: .normal)
+//            newGameButton.setAttributedTitle(updateAttributedString("NEW GAME",
+//            view: newGameButton), for: .normal)
+        }
+    }
+    @IBOutlet weak var scoreLabel: UILabel!
+    var score: Int = 0 {
+        didSet {
+            scoreLabel.text = "SCORE: \(score)"
         }
     }
     var selectedCardViews = [CardView]()
@@ -93,6 +98,8 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         animator.delegate = self
         // MARK: DYNAMIC ANIMATION - animator adds push behavior
 //        animator.addBehavior(pushBehavior)
+        
+        scoreLabel.text = "SCORE: \(score)"
     }
     
     // MARK: - USER ACTIONS
@@ -140,7 +147,9 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
                         }
                         self.selectedCardViews.removeAll()
                         // set the new frames and animate
-                        self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
+                        playingCardsMainView.grid.cellCount = playingCardsMainView.numberOfCardViews
+//                        self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
+                        
                         // MARK: ANIMATION: adjust cards to new layout
                         UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 1.0, delay: 0, options: [], animations: {
                             self.adjustCardViewsToNewFrame()
@@ -222,17 +231,7 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         
 
     }
-    private func updateAttributedString(_ string: String) -> NSAttributedString {
-        var font = UIFont.preferredFont(forTextStyle: .headline).withSize(scoreLabel.frame.height * 0.85)
-        font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: font)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = .center
-        let stringAttributes: [NSAttributedStringKey: Any] = [
-            .font: font,
-            .paragraphStyle: paragraphStyle
-        ]
-        return NSAttributedString(string: string, attributes: stringAttributes)
-    }
+
     
     
     
@@ -246,6 +245,9 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     // MARK: - VIEW UPDATES
 	fileprivate func updateViewForMatchedCards() {
+        // Update sets info on set pile
+        self.setPileLabel.text = "\(self.set.matchedCards.count / 3) Sets"
+
 		// matched cards animation
 		// 1. create temp card views for the matched cards
 		let lastMatchedCards = set.matchedCards.suffix(3)
@@ -312,10 +314,9 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     func dynamicAnimatorDidPause(_ animator: UIDynamicAnimator) {
         // MARK: ANIMATION: Flip cardviews when cardviews are snapped to the pile
-        // 1. Ask Animator delegate(?) when snapbehavior is done
-        // 2. animate flip cardviews to face down
+        // animate flip cardviews to face down
         playingCardsMainView.tempCardViews.forEach { tempCardView in
-            UIView.transition(with: tempCardView, duration: 0.5, options: [.transitionFlipFromLeft], animations: {
+            UIView.transition(with: tempCardView, duration: 0.7, options: [.transitionFlipFromLeft], animations: {
                 tempCardView.isFaceUp = false
             }, completion: { (finished) in
                 // clean up and remove temp card views from superview
@@ -361,6 +362,8 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         
         var delay: TimeInterval = 0
         for (index, cardView) in cardViewsToAnimate.enumerated() {
+            // Brings cards to animate to front
+            playingCardsMainView.bringSubview(toFront: cardView)
             // MARK: ANIMATION: Cards from deck to position
             UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.75, delay: delay, options: [.curveEaseOut], animations: {
                 cardView.frame = oldCardFrame[index]
@@ -378,7 +381,7 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     private func showDealtCards() {
         // prepare playingCardsMainView for new cardView frames
         self.playingCardsMainView.numberOfCardViews = self.set.playedCards.count
-        // If the subview layout changes, animate cardviews as they adjust to new frame
+        // If the subview layout changes, animate dealing cardviews after existing cards adjust to new frame
         var animationDuration: TimeInterval = 0
         if cellSize != playingCardsMainView.grid.cellSize {
             animationDuration = 0.7
