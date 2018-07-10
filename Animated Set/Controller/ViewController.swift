@@ -32,15 +32,11 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     var setPileCenterInPlayingCardsMV: CGPoint {
         return rightContentView.convert(CGPoint(x: setPileLabel.frame.midX, y: setPileLabel.frame.midY), to: playingCardsMainView)
     }
-//    var setOriginInPlayingCardsMV: CGPoint {
-//        return rightContentView.convert(setPileLabel.frame.origin, to: playingCardsMainView)
-//    }
+
     
     @IBOutlet weak var newGameButton: UIButton! {
         didSet {
             newGameButton.setTitle("NEW GAME", for: .normal)
-//            newGameButton.setAttributedTitle(updateAttributedString("NEW GAME",
-//            view: newGameButton), for: .normal)
         }
     }
     @IBOutlet weak var scoreLabel: UILabel!
@@ -50,18 +46,18 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         }
     }
     var selectedCardViews = [CardView]()
-//    var tempCardViews = [CardView]()
     var cellSize = CGSize()
 
     // MARK: ANIMATION
     lazy var animator = UIDynamicAnimator(referenceView: self.playingCardsMainView)
+    lazy var flyBehavior = FlyBehavior()
     private weak var timer: Timer?
     
-    let collisionBehavior: UICollisionBehavior = {
-       let behavior = UICollisionBehavior()
-        behavior.translatesReferenceBoundsIntoBoundary = true
-        return behavior
-    }()
+//    let collisionBehavior: UICollisionBehavior = {
+//        let behavior = UICollisionBehavior()
+//        behavior.translatesReferenceBoundsIntoBoundary = true
+//        return behavior
+//    }()
 
     // MARK: CARD ATTRIBUTES
     private let colorDictionary: [Card.Color: UIColor] = [
@@ -265,7 +261,6 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 				tempCardView.isFaceUp = true
 				playingCardsMainView.addSubview(tempCardView)
 				playingCardsMainView.tempCardViews.append(tempCardView)
-//				tempCardViews.append(tempCardView)
 			} catch {
 				print(error.localizedDescription)
 			}
@@ -274,7 +269,8 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 		let itemBehavior = UIDynamicItemBehavior(items: playingCardsMainView.tempCardViews)
 		itemBehavior.elasticity = 0.8
 		animator.addBehavior(itemBehavior)
-		animator.addBehavior(collisionBehavior)
+        animator.addBehavior(flyBehavior)
+//        animator.addBehavior(collisionBehavior)
 		self.playingCardsMainView.tempCardViews.forEach {
 			let pushBehavior = UIPushBehavior(items: [$0], mode: .instantaneous)
 			// push behavior configuration
@@ -287,7 +283,8 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 				pushBehavior.dynamicAnimator?.removeBehavior(pushBehavior)
 			}
 			// add cardviews to collision behavior
-			self.collisionBehavior.addItem($0)
+            self.flyBehavior.add($0)
+//            self.collisionBehavior.addItem($0)
 		}
 		timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { timer in
             
@@ -302,7 +299,8 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
                 self.view.insertSubview(cardView, aboveSubview: self.setPileLabel)
                 
                 // MARK: DYNAMIC ANIMATION: remove items from behaviors
-                self.collisionBehavior.removeItem(cardView)
+                self.flyBehavior.removeCollision(from: cardView)
+//                self.collisionBehavior.removeItem(cardView)
                 cardView.showNoSelection()
                 
                 // MARK: ANIMATION: change height and width of set cards to match the set pile

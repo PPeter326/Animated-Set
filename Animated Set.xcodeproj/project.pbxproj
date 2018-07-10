@@ -19,6 +19,7 @@
 		F906CFD920D2EC6000C0E0AB /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFD320D2EC6000C0E0AB /* Grid.swift */; };
 		F940789F20D306280005E5E2 /* CardIndexError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F940789E20D306280005E5E2 /* CardIndexError.swift */; };
 		F940FDCA20DC7D3600A7C4E0 /* CardViewGeneratorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */; };
+		F9B86F3A20F484A000D3E849 /* FlyBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B86F3920F484A000D3E849 /* FlyBehavior.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		F906CFD320D2EC6000C0E0AB /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 		F940789E20D306280005E5E2 /* CardIndexError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardIndexError.swift; sourceTree = "<group>"; };
 		F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewGeneratorError.swift; sourceTree = "<group>"; };
+		F9B86F3920F484A000D3E849 /* FlyBehavior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlyBehavior.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 				F906CFCB20D2EC6000C0E0AB /* Model */,
 				F906CFCE20D2EC6000C0E0AB /* View */,
 				F906CFC820D2EC4000C0E0AB /* Controller */,
+				F9B86F3920F484A000D3E849 /* FlyBehavior.swift */,
 				F906CFAE20D2E92D00C0E0AB /* AppDelegate.swift */,
 				F940789E20D306280005E5E2 /* CardIndexError.swift */,
 				F906CFD120D2EC6000C0E0AB /* Main.storyboard */,
@@ -181,6 +184,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F906CFD520D2EC6000C0E0AB /* Set.swift in Sources */,
+				F9B86F3A20F484A000D3E849 /* FlyBehavior.swift in Sources */,
 				F906CFCA20D2EC4000C0E0AB /* ViewController.swift in Sources */,
 				F940FDCA20DC7D3600A7C4E0 /* CardViewGeneratorError.swift in Sources */,
 				F906CFD420D2EC6000C0E0AB /* Card.swift in Sources */,
