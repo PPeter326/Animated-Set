@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Card: Hashable, CustomStringConvertible {
+struct PlayCard: Hashable, CustomStringConvertible {
     var description: String {
         return "card # \(identifier)"
     }
@@ -19,13 +19,13 @@ struct Card: Hashable, CustomStringConvertible {
     let shading: Shading
     let identifier: Int
     private static var identifier: Int = 0
-    static var all: [Card] {
-        var cards = [Card]()
+    static var all: [PlayCard] {
+        var cards = [PlayCard]()
         for color in Color.all {
             for shape in Shape.all {
                 for shading in Shading.all {
                     for numberOfShapes in NumberOfShapes.all {
-                        cards.append(Card(color: color, shape: shape, numberOfShapes: numberOfShapes, shading: shading, identifier: makeIdentifier()))
+                        cards.append(PlayCard(color: color, shape: shape, numberOfShapes: numberOfShapes, shading: shading, identifier: makeIdentifier()))
                     }
                 }
             }

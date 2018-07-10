@@ -10,8 +10,8 @@
 		F906CFAF20D2E92D00C0E0AB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFAE20D2E92D00C0E0AB /* AppDelegate.swift */; };
 		F906CFB620D2E93000C0E0AB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F906CFB520D2E93000C0E0AB /* Assets.xcassets */; };
 		F906CFB920D2E93000C0E0AB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F906CFB720D2E93000C0E0AB /* LaunchScreen.storyboard */; };
-		F906CFCA20D2EC4000C0E0AB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFC920D2EC4000C0E0AB /* ViewController.swift */; };
-		F906CFD420D2EC6000C0E0AB /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFCC20D2EC6000C0E0AB /* Card.swift */; };
+		F906CFCA20D2EC4000C0E0AB /* AnimatedSetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFC920D2EC4000C0E0AB /* AnimatedSetViewController.swift */; };
+		F906CFD420D2EC6000C0E0AB /* PlayCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFCC20D2EC6000C0E0AB /* PlayCard.swift */; };
 		F906CFD520D2EC6000C0E0AB /* Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFCD20D2EC6000C0E0AB /* Set.swift */; };
 		F906CFD620D2EC6000C0E0AB /* PlayingCardsMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFCF20D2EC6000C0E0AB /* PlayingCardsMainView.swift */; };
 		F906CFD720D2EC6000C0E0AB /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F906CFD020D2EC6000C0E0AB /* CardView.swift */; };
@@ -20,6 +20,10 @@
 		F940789F20D306280005E5E2 /* CardIndexError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F940789E20D306280005E5E2 /* CardIndexError.swift */; };
 		F940FDCA20DC7D3600A7C4E0 /* CardViewGeneratorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */; };
 		F9B86F3A20F484A000D3E849 /* FlyBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B86F3920F484A000D3E849 /* FlyBehavior.swift */; };
+		F9B86F3F20F5260100D3E849 /* ConcentrationThemeChooserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B86F3B20F5260100D3E849 /* ConcentrationThemeChooserViewController.swift */; };
+		F9B86F4020F5260100D3E849 /* Concentration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B86F3C20F5260100D3E849 /* Concentration.swift */; };
+		F9B86F4120F5260100D3E849 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B86F3D20F5260100D3E849 /* Card.swift */; };
+		F9B86F4220F5260100D3E849 /* ConcentrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B86F3E20F5260100D3E849 /* ConcentrationViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,8 +32,8 @@
 		F906CFB520D2E93000C0E0AB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F906CFB820D2E93000C0E0AB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F906CFBA20D2E93000C0E0AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F906CFC920D2EC4000C0E0AB /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		F906CFCC20D2EC6000C0E0AB /* Card.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		F906CFC920D2EC4000C0E0AB /* AnimatedSetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedSetViewController.swift; sourceTree = "<group>"; };
+		F906CFCC20D2EC6000C0E0AB /* PlayCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayCard.swift; sourceTree = "<group>"; };
 		F906CFCD20D2EC6000C0E0AB /* Set.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Set.swift; sourceTree = "<group>"; };
 		F906CFCF20D2EC6000C0E0AB /* PlayingCardsMainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayingCardsMainView.swift; sourceTree = "<group>"; };
 		F906CFD020D2EC6000C0E0AB /* CardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
@@ -38,6 +42,10 @@
 		F940789E20D306280005E5E2 /* CardIndexError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardIndexError.swift; sourceTree = "<group>"; };
 		F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewGeneratorError.swift; sourceTree = "<group>"; };
 		F9B86F3920F484A000D3E849 /* FlyBehavior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlyBehavior.swift; sourceTree = "<group>"; };
+		F9B86F3B20F5260100D3E849 /* ConcentrationThemeChooserViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConcentrationThemeChooserViewController.swift; sourceTree = "<group>"; };
+		F9B86F3C20F5260100D3E849 /* Concentration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Concentration.swift; sourceTree = "<group>"; };
+		F9B86F3D20F5260100D3E849 /* Card.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		F9B86F3E20F5260100D3E849 /* ConcentrationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConcentrationViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,7 +95,11 @@
 		F906CFC820D2EC4000C0E0AB /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				F906CFC920D2EC4000C0E0AB /* ViewController.swift */,
+				F906CFC920D2EC4000C0E0AB /* AnimatedSetViewController.swift */,
+				F9B86F3D20F5260100D3E849 /* Card.swift */,
+				F9B86F3C20F5260100D3E849 /* Concentration.swift */,
+				F9B86F3B20F5260100D3E849 /* ConcentrationThemeChooserViewController.swift */,
+				F9B86F3E20F5260100D3E849 /* ConcentrationViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -96,7 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				F940FDC920DC7D3600A7C4E0 /* CardViewGeneratorError.swift */,
-				F906CFCC20D2EC6000C0E0AB /* Card.swift */,
+				F906CFCC20D2EC6000C0E0AB /* PlayCard.swift */,
 				F906CFCD20D2EC6000C0E0AB /* Set.swift */,
 			);
 			path = Model;
@@ -185,14 +197,18 @@
 			files = (
 				F906CFD520D2EC6000C0E0AB /* Set.swift in Sources */,
 				F9B86F3A20F484A000D3E849 /* FlyBehavior.swift in Sources */,
-				F906CFCA20D2EC4000C0E0AB /* ViewController.swift in Sources */,
+				F906CFCA20D2EC4000C0E0AB /* AnimatedSetViewController.swift in Sources */,
 				F940FDCA20DC7D3600A7C4E0 /* CardViewGeneratorError.swift in Sources */,
-				F906CFD420D2EC6000C0E0AB /* Card.swift in Sources */,
+				F9B86F4120F5260100D3E849 /* Card.swift in Sources */,
+				F906CFD420D2EC6000C0E0AB /* PlayCard.swift in Sources */,
+				F9B86F4220F5260100D3E849 /* ConcentrationViewController.swift in Sources */,
+				F9B86F4020F5260100D3E849 /* Concentration.swift in Sources */,
 				F940789F20D306280005E5E2 /* CardIndexError.swift in Sources */,
 				F906CFD620D2EC6000C0E0AB /* PlayingCardsMainView.swift in Sources */,
 				F906CFD720D2EC6000C0E0AB /* CardView.swift in Sources */,
 				F906CFD920D2EC6000C0E0AB /* Grid.swift in Sources */,
 				F906CFAF20D2E92D00C0E0AB /* AppDelegate.swift in Sources */,
+				F9B86F3F20F5260100D3E849 /* ConcentrationThemeChooserViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

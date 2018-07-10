@@ -31,8 +31,8 @@ class Set {
 
     // MARK: Game properties and initializer
     
-    var deck: [Card]
-    var selectedCards = [Card]() {
+    var deck: [PlayCard]
+    var selectedCards = [PlayCard]() {
         didSet {
             if selectedCards.count == 3 {
                 // A set of cards are matched when any of the attributes are matched between ONLY two cards
@@ -48,14 +48,14 @@ class Set {
             }
         }
     }
-    var matchedCards = [Card]()
-    var playedCards = [Card]()
-    var dealtCards = [Card]()
+    var matchedCards = [PlayCard]()
+    var playedCards = [PlayCard]()
+    var dealtCards = [PlayCard]()
     private(set) var matched: Bool?
     private(set) var score: Int = 0
     
     init() {
-        deck = Card.all
+        deck = PlayCard.all
         shuffleCards()
     }
     
@@ -69,7 +69,7 @@ class Set {
     /// If the selected cards have been matched, in the playedCards array the matched cards will be replaced with new cards from the deck.
     /// If there are no more cards in the deck, the matched cards will simply be removed with no replacement.
     /// - Parameter card: Card type that is accessed from playedCards array with index from the cardView
-    func selectCard(card: Card, result: (_ result: Result) -> Void) {
+    func selectCard(card: PlayCard, result: (_ result: Result) -> Void) {
         var selectionResult = Result.selected
         
         if !matchedCards.contains(card) {
@@ -146,7 +146,7 @@ class Set {
         matched = nil
         score = 0
         
-        self.deck = Card.all
+        self.deck = PlayCard.all
         shuffleCards()
     }
     
@@ -165,7 +165,7 @@ class Set {
     }
     
     private func shuffleCards() {
-        var shuffledCards = [Card]()
+        var shuffledCards = [PlayCard]()
         for _ in 0...(self.deck.count - 1) {
             let randomIndex = self.deck.count.arc4random
             shuffledCards.append(self.deck.remove(at: Int(randomIndex)))
@@ -182,7 +182,7 @@ class Set {
         }
     }
     
-    private func onlyTwoEquals(amongst cards:[Card]) -> Bool {
+    private func onlyTwoEquals(amongst cards:[PlayCard]) -> Bool {
         // Go through each card in the array and compare each attribute.  The cards are matched only if all attributes of all cards in a set are same or totally different.
         // Attribute 1 comparison
         let colorAttributeMatch = (cards[0].color == cards[1].color && cards[1].color == cards[2].color) || (cards[0].color != cards[1].color && cards[1].color != cards[2].color && cards[0].color != cards[2].color)
@@ -199,17 +199,7 @@ class Set {
     }
 }
 
-extension Int {
-    var arc4random: Int {
-        if self >  0 {
-            return Int(arc4random_uniform(UInt32(self)))
-        } else if self < 0 {
-            return Int(arc4random_uniform(UInt32(abs(self))))
-        } else {
-            return 0
-        }
-    }
-}
+
 
 
 

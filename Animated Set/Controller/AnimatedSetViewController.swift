@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIDynamicAnimatorDelegate {
+class AnimatedSetViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     // MARK: GAME
     private var set = Set()
@@ -59,19 +59,19 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
 
     // MARK: CARD ATTRIBUTES
-    private let colorDictionary: [Card.Color: UIColor] = [
+    private let colorDictionary: [PlayCard.Color: UIColor] = [
         .color1: #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1),
         .color2: #colorLiteral(red: 0.01680417731, green: 0.1983509958, blue: 1, alpha: 1),
         .color3: #colorLiteral(red: 0, green: 0.9768045545, blue: 0, alpha: 1)
     ]
     
-    private let shapeDictionary: [Card.Shape: CardView.Shape] = [
+    private let shapeDictionary: [PlayCard.Shape: CardView.Shape] = [
         .shape1: CardView.Shape.diamond,
         .shape2: CardView.Shape.oval,
         .shape3: CardView.Shape.squiggle
     ]
     
-    private let shadingDictionary: [Card.Shading: CardView.Shade] = [
+    private let shadingDictionary: [PlayCard.Shading: CardView.Shade] = [
         .shading1: CardView.Shade.solid,
         .shading2: CardView.Shade.striped,
         .shading3: CardView.Shade.unfilled
@@ -92,8 +92,10 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        playingCardsMainView.orientationChanged = true
-        playingCardsMainView.layoutIfNeeded()
+        if let playingCardsMainView = playingCardsMainView {        
+            playingCardsMainView.orientationChanged = true
+            playingCardsMainView.layoutIfNeeded()
+        }
     }
     // MARK: - USER ACTIONS
     
@@ -234,6 +236,7 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 		// MARK: DYNAMIC ANIMATION: add cardview to push and collision behavior
         animator.addBehavior(flyBehavior)
 		self.playingCardsMainView.tempCardViews.forEach { self.flyBehavior.add($0) }
+        
 		timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { timer in
             
             // MARK: DYNAMIC ANIMATION: set timer for 2 seconds before "snapping" the cards to the pile
@@ -362,7 +365,7 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     ///   - cardView: A CardView object
     ///   - card: A given card
     /// - Throws: Error if the function is unable to retrieve card attributes such as color and shapes from dictionary
-    private func configureCardView(cardView: CardView, card: Card ) throws {
+    private func configureCardView(cardView: CardView, card: PlayCard ) throws {
         guard let color = colorDictionary[card.color] else { throw CardViewGeneratorError.invalidColor }
         guard let shape = shapeDictionary[card.shape] else { throw CardViewGeneratorError.invalidShape }
         let numberOfShapes = card.numberOfShapes.rawValue
