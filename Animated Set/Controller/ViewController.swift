@@ -30,7 +30,8 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     
     @IBOutlet weak var setPileLabel: UILabel!
     var setPileCenterInPlayingCardsMV: CGPoint {
-        return rightContentView.convert(CGPoint(x: setPileLabel.frame.midX, y: setPileLabel.frame.midY), to: playingCardsMainView)
+//        return rightContentView.convert(CGPoint(x: setPileLabel.frame.midX, y: setPileLabel.frame.midY), to: playingCardsMainView)
+        return rightContentView.convert(CGPoint(x: setPileLabel.frame.midX, y: setPileLabel.frame.midY), to: view)
     }
 
     
@@ -48,16 +49,14 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
     var selectedCardViews = [CardView]()
     var cellSize = CGSize()
 
+    var tempCardViews: [CardView] = []
+    
     // MARK: ANIMATION
-    lazy var animator = UIDynamicAnimator(referenceView: self.playingCardsMainView)
+//    lazy var animator = UIDynamicAnimator(referenceView: self.playingCardsMainView)
+    lazy var animator = UIDynamicAnimator(referenceView: self.view)
     lazy var flyBehavior = FlyBehavior()
     private weak var timer: Timer?
     
-//    let collisionBehavior: UICollisionBehavior = {
-//        let behavior = UICollisionBehavior()
-//        behavior.translatesReferenceBoundsIntoBoundary = true
-//        return behavior
-//    }()
 
     // MARK: CARD ATTRIBUTES
     private let colorDictionary: [Card.Color: UIColor] = [
@@ -83,12 +82,6 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         set.startGamme()
         // show card views
         showDealtCards()
-        // add swipe and rotate gestures to deal and shuffle, respectively
-        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(swipeDownToDeal(_:)))
-        swipeDown.direction = .down
-        playingCardsMainView.addGestureRecognizer(swipeDown)
-        let rotate = UIRotationGestureRecognizer(target: self, action: #selector(rotateToShuffle(_:)))
-        playingCardsMainView.addGestureRecognizer(rotate)
         
         // set delegate for animator
         animator.delegate = self
@@ -204,33 +197,6 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         dealCard(disable: false)
         
     }
-    
-    
-    
-    @objc func swipeDownToDeal(_ gestureRecognizer: UIGestureRecognizer) {
-        if gestureRecognizer.state == .ended {
-            dealCards()
-        }
-    }
-    
-    @objc func rotateToShuffle(_ gestureRecognizer: UIGestureRecognizer) {
-        
-        switch gestureRecognizer.state {
-        case .ended:
-            // shuffle cards if deck isn't empty, and a match hasn't taken place yet
-            if !set.deck.isEmpty && set.selectedCards.count < 3 {
-                // clear selection cards
-                selectedCardViews.removeAll()
-                // shuffle remaining cards in play and deck
-                set.shuffleRemainingCards()
-                // update cardViews
-                showDealtCards()
-            }
-        default: break
-        }
-        
-
-    }
 
     
     
@@ -266,11 +232,7 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 			}
 		}
 		// MARK: DYNAMIC ANIMATION: add cardview to push and collision behavior
-		let itemBehavior = UIDynamicItemBehavior(items: playingCardsMainView.tempCardViews)
-		itemBehavior.elasticity = 0.8
-		animator.addBehavior(itemBehavior)
         animator.addBehavior(flyBehavior)
-//        animator.addBehavior(collisionBehavior)
 		self.playingCardsMainView.tempCardViews.forEach {
 			let pushBehavior = UIPushBehavior(items: [$0], mode: .instantaneous)
 			// push behavior configuration
@@ -282,9 +244,8 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 			pushBehavior.action = { [unowned pushBehavior] in
 				pushBehavior.dynamicAnimator?.removeBehavior(pushBehavior)
 			}
-			// add cardviews to collision behavior
+			// add cardviews to flying cards behavior
             self.flyBehavior.add($0)
-//            self.collisionBehavior.addItem($0)
 		}
 		timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { timer in
             
@@ -297,37 +258,36 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
                 
                 // bring each temp cardviews to front so they cover the set pile label
                 self.view.insertSubview(cardView, aboveSubview: self.setPileLabel)
+                self.tempCardViews.append(cardView)
                 
                 // MARK: DYNAMIC ANIMATION: remove items from behaviors
                 self.flyBehavior.removeCollision(from: cardView)
-//                self.collisionBehavior.removeItem(cardView)
                 cardView.showNoSelection()
                 
                 // MARK: ANIMATION: change height and width of set cards to match the set pile
                 UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.3, delay: 0, options: [], animations: {
-                    
                     cardView.bounds = self.setPileLabel.bounds
-//                    cardView.frame.height = setPileLabel.frame.height
                 }, completion: nil)
             }
-            
+            // remove reference to tempCardViews
+            self.playingCardsMainView.tempCardViews.removeAll()
 		}
 	}
     
     func dynamicAnimatorDidPause(_ animator: UIDynamicAnimator) {
         // MARK: ANIMATION: Flip cardviews when cardviews are snapped to the pile
         // animate flip cardviews to face down
-        playingCardsMainView.tempCardViews.forEach { tempCardView in
+        tempCardViews.forEach { tempCardView in
             UIView.transition(with: tempCardView, duration: 0.7, options: [.transitionFlipFromLeft], animations: {
                 tempCardView.isFaceUp = false
             }, completion: { (finished) in
-                // clean up and remove temp card views from superview
                 tempCardView.removeFromSuperview()
-                self.playingCardsMainView.tempCardViews.remove(at: self.playingCardsMainView.tempCardViews.index(of: tempCardView)!)
-                // remove all behaviors from animator
+                self.flyBehavior.removeDynamicBehavior(from: tempCardView)
                 animator.removeAllBehaviors()
             })
         }
+        // remove all pointers to temp card views
+        tempCardViews.removeAll()
     }
     
     fileprivate func adjustCardViewsToNewFrame() {
