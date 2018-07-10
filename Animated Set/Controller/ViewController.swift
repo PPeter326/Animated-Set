@@ -102,6 +102,10 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         scoreLabel.text = "SCORE: \(score)"
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        playingCardsMainView.orientationChanged = true
+        playingCardsMainView.layoutIfNeeded()
+    }
     // MARK: - USER ACTIONS
     
     @IBAction func dealCard(_ sender: UIButton) {
