@@ -233,35 +233,19 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
 		}
 		// MARK: DYNAMIC ANIMATION: add cardview to push and collision behavior
         animator.addBehavior(flyBehavior)
-		self.playingCardsMainView.tempCardViews.forEach {
-			let pushBehavior = UIPushBehavior(items: [$0], mode: .instantaneous)
-			// push behavior configuration
-			pushBehavior.magnitude = CGFloat(3.0) + CGFloat(2.0).arc4Random
-			pushBehavior.angle = CGFloat.pi + CGFloat.pi.arc4Random
-			pushBehavior.active = true
-			animator.addBehavior(pushBehavior)
-			// remove instantaneous push behavior once it's acted
-			pushBehavior.action = { [unowned pushBehavior] in
-				pushBehavior.dynamicAnimator?.removeBehavior(pushBehavior)
-			}
-			// add cardviews to flying cards behavior
-            self.flyBehavior.add($0)
-		}
+		self.playingCardsMainView.tempCardViews.forEach { self.flyBehavior.add($0) }
 		timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { timer in
             
             // MARK: DYNAMIC ANIMATION: set timer for 2 seconds before "snapping" the cards to the pile
             self.playingCardsMainView.tempCardViews.forEach { cardView in
-                let snap = UISnapBehavior(item: cardView, snapTo: self.setPileCenterInPlayingCardsMV)
-                // more damping than default
-                snap.damping = 0.4
-                self.animator.addBehavior(snap)
-                
-                // bring each temp cardviews to front so they cover the set pile label
+
+                // add snap behavior
+                self.flyBehavior.snap(cardView, snapPoint: self.setPileCenterInPlayingCardsMV)
+                // bring each temp cardviews to front so they cover the set pile label.  This changes the cardView's superview to top-level view
                 self.view.insertSubview(cardView, aboveSubview: self.setPileLabel)
                 self.tempCardViews.append(cardView)
                 
                 // MARK: DYNAMIC ANIMATION: remove items from behaviors
-                self.flyBehavior.removeCollision(from: cardView)
                 cardView.showNoSelection()
                 
                 // MARK: ANIMATION: change height and width of set cards to match the set pile
@@ -278,12 +262,13 @@ class ViewController: UIViewController, UIDynamicAnimatorDelegate {
         // MARK: ANIMATION: Flip cardviews when cardviews are snapped to the pile
         // animate flip cardviews to face down
         tempCardViews.forEach { tempCardView in
+            // remove cardView from all dynamic animations
+            flyBehavior.removeSnap(from: tempCardView)
+            self.flyBehavior.removeDynamicBehavior(from: tempCardView)
             UIView.transition(with: tempCardView, duration: 0.7, options: [.transitionFlipFromLeft], animations: {
                 tempCardView.isFaceUp = false
             }, completion: { (finished) in
                 tempCardView.removeFromSuperview()
-                self.flyBehavior.removeDynamicBehavior(from: tempCardView)
-                animator.removeAllBehaviors()
             })
         }
         // remove all pointers to temp card views
